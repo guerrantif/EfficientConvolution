@@ -1,8 +1,5 @@
 TODO:
 
 - assert vs throw
-- check risultato convolveParallelHo e convolveNaive
-- convolveParallelCo e convolveThreadCo
-- convolveParallelEo e convolveThreadEo
 - makefile
 - test
