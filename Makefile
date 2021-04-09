@@ -9,14 +9,12 @@ BUILD_DIR=./build
 INCLUDES=-I./include
 LDFLAGS= -pthread
 
-# SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
-# OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
-
 all: $(OUT_DIR)/$(TARGETS)
 
-# TEST_DIRTensor
+# testTensor
 $(OUT_DIR)/testTensor: $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/testTensor.o
-	$(CXX) -o $(OUT_DIR)/testTensor $(BUILD_DIR)/testTensor.o $(BUILD_DIR)/Tensor.o $(CCFLAGS) $(LDFLAGS)
+	$(CXX) -o $(OUT_DIR)/testTensor $(BUILD_DIR)/testTensor.o $(BUILD_DIR)/Tensor.o $(LDFLAGS)
+
 
 $(BUILD_DIR)/Tensor.o: $(SRC_DIR)/Tensor.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
