@@ -1,0 +1,9 @@
+TODO:
+
+- capire come inizializzare i tensori
+    - zeros
+    - ones
+    - rand
+    - incr
+    Tensor<int> image = Tensor::ones{3,32,32};
+    Tensor<int> image{3,32,32,"ones"};
