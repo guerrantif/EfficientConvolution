@@ -2,8 +2,9 @@
 #define __TENSOR_HH__
 
 #include <vector>
+#include <iostream>
 
-constexpr bool DO_PRINT = true;
+constexpr bool DO_PRINT = false;
 
 namespace tensor{
     enum class init{
@@ -42,8 +43,23 @@ private:
     void convolveThreadHo(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
         const uint32_t start_Ho, const uint32_t end_Ho) const;
 
+    // convolve thread (parallel in nChannels dimension)
+    void convolveThreadCo(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
+        const uint32_t start_Co, const uint32_t end_Co) const;
+
+    // convolve thread (parallel in nElements dimension)
+    void convolveThreadEo(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
+        const uint32_t start_Eo, const uint32_t end_Eo) const;
+
+public:
     // Convolution operator (parallel) - dimension: output height
     Tensor<T> convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+
+    // Convolution operator (parallel) - dimension: output nChannels
+    Tensor<T> convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+
+    // Convolution operator (parallel) - dimension: output nElements
+    Tensor<T> convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
 
     // Convolution Naive
     Tensor<T> convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const;
@@ -88,6 +104,9 @@ public:
     // Operator+ overloading
     Tensor<T> operator+(const T& value);
 
+    // Operator== overloading
+    bool operator==(const Tensor<T>& other);
+
     // Provides a copy of this tensor
     Tensor<T> copy();
 
@@ -130,6 +149,17 @@ public:
     // Check validity
     bool isValid() const;
 };
+
+template <class T>
+std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
+    auto data = tensor.getData();
+    auto size = tensor.getSize();
+
+    for(auto i = 0; i < size; i++){
+        os << data[i] << ", ";
+    }
+    return os;
+}
 
 
 #endif
