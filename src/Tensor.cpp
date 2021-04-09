@@ -342,26 +342,50 @@ bool Tensor<T>::isValid() const{
 // Convolutions
 template <class T>
 Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const {
-    // return this->convolveNaive(kernel, stride, padding);
-    return this->convolveParallelHo(kernel, stride, padding, nThreads);
 
-    if(this->nElements == 1){ // image 3D
-        if(kernel.nElements == 1){
-            // 3D-3D convolution
-            // output = this->convolveParallelHo(kernel, stride, padding, nThreads);
-        }
-        else{
-            // 3D-4D convolution
+    auto Eo = this->nElements;
+    auto Co = kernel.nElements;
+    auto Ho = (this->height - kernel.height + 2*padding) / stride + 1;
 
-        }
+    auto Eo_over_Co = static_cast<float>(Eo)/static_cast<float>(Co);
+    auto Co_over_Ho = static_cast<float>(Co)/static_cast<float>(Ho);
+
+    auto threshold = 1;
+
+    if(Eo_over_Co > threshold){ // more Elements than Channels in output tensor
+        return this->convolveParallelEo(kernel, stride, padding, nThreads);
+    } 
+    else if(Co_over_Ho > threshold){ // more Channels than Height in output tensor
+        return this->convolveParallelCo(kernel, stride, padding, nThreads);
     }
-    else{   // image 4D
-        if(kernel.nElements == 1){
-            // 4D-3D convolution
-        }
-        else{
-            // 4D-4D convolution
-        }
+    else {
+        return this->convolveParallelHo(kernel, stride, padding, nThreads);
+    }
+}
+
+// Convolutions
+template <class T>
+Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const {
+
+    auto nThreads = 4;
+
+    auto Eo = this->nElements;
+    auto Co = kernel.nElements;
+    auto Ho = (this->height - kernel.height + 2*padding) / stride + 1;
+
+    auto Eo_over_Co = static_cast<float>(Eo)/static_cast<float>(Co);
+    auto Co_over_Ho = static_cast<float>(Co)/static_cast<float>(Ho);
+
+    auto threshold = 1;
+
+    if(Eo_over_Co > threshold){ // more Elements than Channels in output tensor
+        return this->convolveParallelEo(kernel, stride, padding, nThreads);
+    } 
+    else if(Co_over_Ho > threshold){ // more Channels than Height in output tensor
+        return this->convolveParallelCo(kernel, stride, padding, nThreads);
+    }
+    else {
+        return this->convolveParallelHo(kernel, stride, padding, nThreads);
     }
 }
 

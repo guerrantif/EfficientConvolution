@@ -140,6 +140,7 @@ public:
 
     // Convolutions
     Tensor<T> convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+    Tensor<T> convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const;
 
     // invalidate this tensor
     void invalidate();
