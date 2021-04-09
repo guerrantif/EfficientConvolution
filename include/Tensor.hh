@@ -1,12 +1,7 @@
 #ifndef __TENSOR_HH__
 #define __TENSOR_HH__
 
-#include <iostream>
 #include <vector>
-#include <limits>
-#include <thread>
-#include <random>
-#include <stdexcept>
 
 constexpr bool DO_PRINT = true;
 
@@ -43,14 +38,16 @@ private:
     // Check indices for operator[]
     void checkIdx(const int32_t& idx) const;
 
-    // Convolve thread (parallel) - dimension: output height
+    // convolve thread (parallel in height dimension)
     void convolveThreadHo(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
-                        const uint32_t start_Ho, const uint32_t end_Ho, const uint32_t Hi, const uint32_t Wi,
-                        const uint32_t Co, const uint32_t Ci, const uint32_t Wo, const uint32_t Hf, const uint32_t Wf) const;
-    
+        const uint32_t start_Ho, const uint32_t end_Ho) const;
+
     // Convolution operator (parallel) - dimension: output height
     Tensor<T> convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
-    
+
+    // Convolution Naive
+    Tensor<T> convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const;
+
 public:
     // Default constructor
     Tensor();
@@ -108,7 +105,7 @@ public:
     inline uint32_t& getSize() { return this->size; }
     // Get shape non-const
     inline std::vector<uint32_t>& getShape() { return this->shape; }
-    
+
     // Get data const
     inline const T* const getData() const { return this->data; }
     // Get number of elements const
@@ -125,7 +122,7 @@ public:
     inline const std::vector<uint32_t>& getShape() const { return this->shape; }
 
     // Convolutions
-    void convolve(Tensor<T>& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+    Tensor<T> convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
 
     // invalidate this tensor
     void invalidate();
@@ -134,6 +131,5 @@ public:
     bool isValid() const;
 };
 
-#include "Tensor.cpp"
 
 #endif
