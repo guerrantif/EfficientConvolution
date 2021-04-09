@@ -4,10 +4,10 @@
 
 
 int main(int argc, char const *argv[]){
-    
+
     typedef float DType;
 
-    Tensor<DType> image{7,3,10,10,tensor::init::INCR};
+    Tensor<DType> image{10,3,10,10,tensor::init::INCR};
     Tensor<DType> kernel{10,3,3,3,tensor::init::INCR};
 
     auto stride = 1;
