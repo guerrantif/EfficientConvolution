@@ -1,5 +1,6 @@
 TODO:
 
 - assert vs throw
+- classe cronometro
 - makefile
 - test
