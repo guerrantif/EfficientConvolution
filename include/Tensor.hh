@@ -39,17 +39,15 @@ private:
     // Check indices for operator[]
     void checkIdx(const int32_t& idx) const;
 
-    // convolve thread (parallel in height dimension)
-    void convolveThreadHo(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
-        const uint32_t start_Ho, const uint32_t end_Ho) const;
-
-    // convolve thread (parallel in nChannels dimension)
-    void convolveThreadCo(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
-        const uint32_t start_Co, const uint32_t end_Co) const;
-
-    // convolve thread (parallel in nElements dimension)
-    void convolveThreadEo(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
-        const uint32_t start_Eo, const uint32_t end_Eo) const;
+    // convolve thread (parallel)
+    void convolveThread(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
+        const uint32_t start_Eo, const uint32_t end_Eo,
+        const uint32_t start_Co, const uint32_t end_Co,
+        const uint32_t start_Ci, const uint32_t end_Ci,
+        const uint32_t start_Ho, const uint32_t end_Ho,
+        const uint32_t start_Hf, const uint32_t end_Hf,
+        const uint32_t start_Wo, const uint32_t end_Wo,
+        const uint32_t start_Wf, const uint32_t end_Wf) const;
 
 public:
     // Convolution operator (parallel) - dimension: output height
