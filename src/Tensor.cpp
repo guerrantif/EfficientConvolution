@@ -10,49 +10,60 @@
 // Check indices for at() operator
 template <class T>
 void Tensor<T>::checkIdx(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
-    if(E_idx < 0 || C_idx < 0 || H_idx < 0 || W_idx < 0){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
-    }
-    if(E_idx >= this->nElements){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(E_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nElements - 1));
-    }
-    if(C_idx >= this->nChannels){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(C_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nChannels - 1));
-    }
-    if(H_idx >= this->height){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(H_idx) + ", but the maximum index for this dimension is " + std::to_string(this->height - 1));
-    }
-    if(W_idx >= this->width){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(W_idx) + ", but the maximum index for this dimension is " + std::to_string(this->width - 1));
-    }
+    assert(E_idx >= 0 && E_idx < this->nElements);
+    assert(C_idx >= 0 && C_idx < this->nChannels);
+    assert(H_idx >= 0 && H_idx < this->height);
+    assert(W_idx >= 0 && W_idx < this->width);
+
+    // if(E_idx < 0 || C_idx < 0 || H_idx < 0 || W_idx < 0){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
+    // }
+    // if(E_idx >= this->nElements){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(E_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nElements - 1));
+    // }
+    // if(C_idx >= this->nChannels){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(C_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nChannels - 1));
+    // }
+    // if(H_idx >= this->height){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(H_idx) + ", but the maximum index for this dimension is " + std::to_string(this->height - 1));
+    // }
+    // if(W_idx >= this->width){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(W_idx) + ", but the maximum index for this dimension is " + std::to_string(this->width - 1));
+    // }
 }
 
 // Check indices for at() operator
 template <class T>
 void Tensor<T>::checkIdx(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
-    if(C_idx < 0 || H_idx < 0 || W_idx < 0){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
-    }
-    if(C_idx >= this->nChannels){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(C_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nChannels - 1));
-    }
-    if(H_idx >= this->height){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(H_idx) + ", but the maximum index for this dimension is " + std::to_string(this->height - 1));
-    }
-    if(W_idx >= this->width){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(W_idx) + ", but the maximum index for this dimension is " + std::to_string(this->width - 1));
-    }
+    assert(C_idx >= 0 && C_idx < this->nChannels);
+    assert(H_idx >= 0 && H_idx < this->height);
+    assert(W_idx >= 0 && W_idx < this->width);
+
+    // if(C_idx < 0 || H_idx < 0 || W_idx < 0){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
+    // }
+    // if(C_idx >= this->nChannels){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(C_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nChannels - 1));
+    // }
+    // if(H_idx >= this->height){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(H_idx) + ", but the maximum index for this dimension is " + std::to_string(this->height - 1));
+    // }
+    // if(W_idx >= this->width){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(W_idx) + ", but the maximum index for this dimension is " + std::to_string(this->width - 1));
+    // }
 }
 
 // Check indices for operator[]
 template <class T>
 void Tensor<T>::checkIdx(const int32_t& idx) const {
-    if(idx < 0){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
-    }
-    if(idx >= this->size){
-        throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(idx) + ", but the maximum index for this dimension is " + std::to_string(this->size - 1));
-    }
+    assert(idx >= 0 && idx < this->size);
+
+    // if(idx < 0){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
+    // }
+    // if(idx >= this->size){
+    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(idx) + ", but the maximum index for this dimension is " + std::to_string(this->size - 1));
+    // }
 }
 
 template <class T>
@@ -428,7 +439,8 @@ void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const
 template <class T>
 Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const {
     // Check for dimensions
-    if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
+    assert(this->nChannels == kernel.nChannels);
+    // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
 
     // Compute output dimensions
     uint32_t Ei = this->nElements;
@@ -481,7 +493,8 @@ Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t s
 template <class T>
 Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const {
     // Check for dimensions
-    if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
+    assert(this->nChannels == kernel.nChannels);
+    // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
 
     // Compute output dimensions
     uint32_t Ei = this->nElements;
@@ -533,7 +546,8 @@ Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t s
 template <class T>
 Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const {
     // Check for dimensions
-    if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
+    assert(this->nChannels == kernel.nChannels);
+    // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
 
     // Compute output dimensions
     uint32_t Ei = this->nElements;
@@ -586,7 +600,8 @@ Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t s
 template<class T>
 Tensor<T> Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const {
     // Check for dimensions
-    if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
+    assert(this->nChannels == kernel.nChannels);
+    // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
 
     // Compute output dimensions
     uint32_t Eo = this->nElements;
