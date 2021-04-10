@@ -12,9 +12,12 @@ LDFLAGS= -pthread
 all: $(OUT_DIR)/$(TARGETS)
 
 # testTensor
-$(OUT_DIR)/testTensor: $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/Chronometer.o $(BUILD_DIR)/testTensor.o
+$(OUT_DIR)/testTensor: dirs $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/Chronometer.o $(BUILD_DIR)/testTensor.o
 	$(CXX) -o $(OUT_DIR)/testTensor $(BUILD_DIR)/testTensor.o $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/Chronometer.o $(LDFLAGS)
 
+dirs:
+	@mkdir -p $(OUT_DIR)
+	@mkdir -p $(BUILD_DIR)
 
 $(BUILD_DIR)/Tensor.o: $(SRC_DIR)/Tensor.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
