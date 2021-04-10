@@ -5,7 +5,7 @@
 #include <iostream>
 
 constexpr bool DO_PRINT = false;
-constexpr bool DO_TIME = false;
+constexpr bool DO_TIME = true;
 
 namespace tensor{
     enum class init{

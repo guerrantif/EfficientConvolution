@@ -3,7 +3,7 @@
 #include <limits>
 #include <thread>
 #include <random>
-#include <stdexcept>
+#include <cassert>
 
 #include "Tensor.hh"
 #include "Chronometer.hh"
