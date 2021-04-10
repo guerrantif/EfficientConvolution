@@ -10,7 +10,7 @@
 
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
-    assert(this->size != 0)
+    assert(this->size != 0);
     this->data = new T[this->size];
     if(init == tensor::init::ZEROS){
         if constexpr (DO_PRINT){
