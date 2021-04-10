@@ -1,31 +1,41 @@
 CXX=g++
 STD=c++17
 CXXFLAGS= -O0 --std=$(STD)
+
 TARGETS= testTensor
+
 OUT_DIR=./bin
 SRC_DIR=./src
 TEST_DIR=./test
 BUILD_DIR=./build
+
 INCLUDES=-I./include
 LDFLAGS= -pthread
 
-all: $(OUT_DIR)/$(TARGETS)
+SOURCES = $(shell find $(SRC_DIR) -name '*.cpp' | sort -k 1nr | cut -f2-)
+OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
-# testTensor
-$(OUT_DIR)/testTensor: dirs $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/Chronometer.o $(BUILD_DIR)/testTensor.o
-	$(CXX) -o $(OUT_DIR)/testTensor $(BUILD_DIR)/testTensor.o $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/Chronometer.o $(LDFLAGS)
+all: $(OUT_DIR)/$(TARGETS) dirs
 
 dirs:
 	@mkdir -p $(OUT_DIR)
 	@mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/Tensor.o: $(SRC_DIR)/Tensor.cpp
+# testTensor
+$(OUT_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+# benchmark naive
+$(OUT_DIR)/benchmarkNaive: $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/Chronometer.o $(BUILD_DIR)/benchmarkNaive.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+
+# Compile src folder
+$(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
 
-$(BUILD_DIR)/Chronometer.o: $(SRC_DIR)/Chronometer.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
-
-$(BUILD_DIR)/testTensor.o: $(TEST_DIR)/testTensor.cpp
+# Compile test folder
+$(BUILD_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
 
 clean:
