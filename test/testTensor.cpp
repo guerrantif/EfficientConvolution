@@ -1,14 +1,18 @@
 #include <iostream>
+#include <cassert>
 
 #include "Tensor.hh"
 
 
 int main(int argc, char const *argv[]){
     
+    // input example: ... 7 3 100 100 10 3 5 5
+    assert(argc == 9);
+
     typedef float DType;
 
-    Tensor<DType> image{7,3,1024,1024,tensor::init::INCR};
-    Tensor<DType> kernel{10,3,3,3,tensor::init::INCR};
+    Tensor<DType> image{atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),atoi(argv[4]),tensor::init::INCR};
+    Tensor<DType> kernel{atoi(argv[5]),atoi(argv[6]),atoi(argv[7]),atoi(argv[8]),tensor::init::INCR};
 
     auto stride = 1;
     auto padding = 0;
