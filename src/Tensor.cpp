@@ -9,43 +9,42 @@
 
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
-    if(this->size != 0){
-        this->data = new T[this->size];
-        if(init == tensor::init::ZEROS){
-            if constexpr (DO_PRINT){
-                std::cout << "init::ZEROS at (" << this << ")" << std::endl;
-            }
-            for (auto i = 0; i < this->size; i++){
-                this->data[i] = T{0};
-            }
+    assert(this->size != 0)
+    this->data = new T[this->size];
+    if(init == tensor::init::ZEROS){
+        if constexpr (DO_PRINT){
+            std::cout << "init::ZEROS at (" << this << ")" << std::endl;
         }
-        if(init == tensor::init::ONES){
-            if constexpr (DO_PRINT){
-                std::cout << "init::ONES at (" << this << ")" << std::endl;
-            }
-            for (auto i = 0; i < this->size; i++){
-                this->data[i] = T{1};
-            }
+        for (auto i = 0; i < this->size; i++){
+            this->data[i] = T{0};
         }
-        if(init == tensor::init::INCR){
-            if constexpr (DO_PRINT){
-                std::cout << "init::INCR at (" << this << ")" << std::endl;
-            }
-            for (auto i = 0; i < this->size; i++){
-                this->data[i] = static_cast<T>(i);
-            }
+    }
+    else if(init == tensor::init::ONES){
+        if constexpr (DO_PRINT){
+            std::cout << "init::ONES at (" << this << ")" << std::endl;
         }
-        if(init == tensor::init::RAND){
-            if constexpr (DO_PRINT){
-                std::cout << "init::RAND at (" << this << ")" << std::endl;
-            }
-            static_assert((std::is_same<T, double>::value || std::is_same<T, float>::value || std::is_same<T, long double>::value), "Invalid type for tensor initialized with init::RAND. Types must be either float, double or long double.");
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::uniform_real_distribution<T> unif_distr(0,1);
-            for (auto i = 0; i < this->size; i++){
-                this->data[i] = unif_distr(gen);
-            }
+        for (auto i = 0; i < this->size; i++){
+            this->data[i] = T{1};
+        }
+    }
+    else if(init == tensor::init::INCR){
+        if constexpr (DO_PRINT){
+            std::cout << "init::INCR at (" << this << ")" << std::endl;
+        }
+        for (auto i = 0; i < this->size; i++){
+            this->data[i] = static_cast<T>(i);
+        }
+    }
+    else if(init == tensor::init::RAND){
+        if constexpr (DO_PRINT){
+            std::cout << "init::RAND at (" << this << ")" << std::endl;
+        }
+        static_assert((std::is_same<T, double>::value || std::is_same<T, float>::value || std::is_same<T, long double>::value), "Invalid type for tensor initialized with init::RAND. Types must be either float, double or long double.");
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<T> unif_distr(0,1);
+        for (auto i = 0; i < this->size; i++){
+            this->data[i] = unif_distr(gen);
         }
     }
 }
