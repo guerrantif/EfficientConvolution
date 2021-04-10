@@ -3,9 +3,10 @@
 #include <limits>
 #include <thread>
 #include <random>
-#include <stdexcept>
+#include <cassert>
 
 #include "Tensor.hh"
+#include "Chronometer.hh"
 
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
@@ -246,13 +247,10 @@ Tensor<T> Tensor<T>::operator+(const T& value){
 
 template <class T>
 bool Tensor<T>::operator==(const Tensor<T>& other) {
-    
     if (!(this->shape == other.shape)) return false;
-
     for(auto i = 0; i < this->size; i++) {
         if (this->data[i] != other.data[i]) return false;
     }
-
     return true;
 }
 
@@ -328,7 +326,9 @@ Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, con
 template <class T>
 Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const {
 
+    // ------ TODO ------
     auto nThreads = 4;
+    // ------------------
 
     auto Eo = this->nElements;
     auto Co = kernel.nElements;
@@ -417,6 +417,11 @@ Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t s
     // Compute range for each thread;
     uint32_t thread_range = (nThreads > Ho) ? 1 : round(float(Ho)/float(nThreads));
 
+    Chronometer c;
+    if constexpr (DO_TIME){
+        c.start();
+    }
+
     for(auto l = 0; l < Ho; l += thread_range) {
         if (threads.size() == nThreads-1) thread_range = Ho - l; // Manage situation in which nThreads is not a divider of H_o
         threads.emplace_back([&, l, thread_range]() {
@@ -429,6 +434,11 @@ Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t s
                                 /*start_Wo=*/0, /*end_Wo=*/Wo,
                                 /*start_Wf=*/0, /*end_Wf=*/Wf);
         });
+    }
+
+    if constexpr (DO_TIME){
+        c.stop();
+        std::cout << c.getTime() << std::endl;
     }
 
     for(auto& thread : threads) {
@@ -471,6 +481,11 @@ Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t s
     // Compute range for each thread;
     uint32_t thread_range = (nThreads > Co) ? 1 : round(float(Co)/float(nThreads));
 
+    Chronometer c;
+    if constexpr (DO_TIME){
+        c.start();
+    }
+
     for(auto j = 0; j < Co; j += thread_range) {
         if (threads.size() == nThreads-1) thread_range = Co - j; // Manage situation in which nThreads is not a divider of Co
         threads.emplace_back([&, j, thread_range]() {
@@ -483,6 +498,11 @@ Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t s
                                 /*start_Wo=*/0, /*end_Wo=*/Wo,
                                 /*start_Wf=*/0, /*end_Wf=*/Wf);
         });
+    }
+
+    if constexpr (DO_TIME){
+        c.stop();
+        std::cout << c.getTime() << std::endl;
     }
 
     for(auto& thread : threads) {
@@ -524,6 +544,11 @@ Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t s
     // Compute range for each thread;
     uint32_t thread_range = (nThreads > Eo) ? 1 : round(float(Eo)/float(nThreads));
 
+    Chronometer c;
+    if constexpr (DO_TIME){
+        c.start();
+    }
+
     for(auto p = 0; p < Eo; p += thread_range) {
         if (threads.size() == nThreads-1) thread_range = Eo - p; // Manage situation in which nThreads is not a divider of Eo
         threads.emplace_back([&, p, thread_range]() {
@@ -536,6 +561,11 @@ Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t s
                                 /*start_Wo=*/0, /*end_Wo=*/Wo,
                                 /*start_Wf=*/0, /*end_Wf=*/Wf);
         });
+    }
+
+    if constexpr (DO_TIME){
+        c.stop();
+        std::cout << c.getTime() << std::endl;
     }
 
     for(auto& thread : threads) {
@@ -569,6 +599,11 @@ Tensor<T> Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride
     // Create the output
     Tensor<T> output(Eo, Co, Ho, Wo, tensor::init::ZEROS);
 
+    Chronometer c;
+    if constexpr (DO_TIME){
+        c.start();
+    }
+
     // Convolution
     for(auto p = 0; p < Eo; p++) {
         for(auto j = 0; j < Co; j++) {
@@ -588,6 +623,11 @@ Tensor<T> Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride
                 }
             }
         }
+    }
+
+    if constexpr (DO_TIME){
+        c.stop();
+        std::cout << c.getTime() << std::endl;
     }
 
     return output;
