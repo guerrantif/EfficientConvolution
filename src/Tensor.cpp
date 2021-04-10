@@ -7,65 +7,6 @@
 
 #include "Tensor.hh"
 
-// Check indices for at() operator
-template <class T>
-void Tensor<T>::checkIdx(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
-    assert(E_idx >= 0 && E_idx < this->nElements);
-    assert(C_idx >= 0 && C_idx < this->nChannels);
-    assert(H_idx >= 0 && H_idx < this->height);
-    assert(W_idx >= 0 && W_idx < this->width);
-
-    // if(E_idx < 0 || C_idx < 0 || H_idx < 0 || W_idx < 0){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
-    // }
-    // if(E_idx >= this->nElements){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(E_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nElements - 1));
-    // }
-    // if(C_idx >= this->nChannels){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(C_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nChannels - 1));
-    // }
-    // if(H_idx >= this->height){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(H_idx) + ", but the maximum index for this dimension is " + std::to_string(this->height - 1));
-    // }
-    // if(W_idx >= this->width){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(W_idx) + ", but the maximum index for this dimension is " + std::to_string(this->width - 1));
-    // }
-}
-
-// Check indices for at() operator
-template <class T>
-void Tensor<T>::checkIdx(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
-    assert(C_idx >= 0 && C_idx < this->nChannels);
-    assert(H_idx >= 0 && H_idx < this->height);
-    assert(W_idx >= 0 && W_idx < this->width);
-
-    // if(C_idx < 0 || H_idx < 0 || W_idx < 0){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
-    // }
-    // if(C_idx >= this->nChannels){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(C_idx) + ", but the maximum index for this dimension is " + std::to_string(this->nChannels - 1));
-    // }
-    // if(H_idx >= this->height){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(H_idx) + ", but the maximum index for this dimension is " + std::to_string(this->height - 1));
-    // }
-    // if(W_idx >= this->width){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(W_idx) + ", but the maximum index for this dimension is " + std::to_string(this->width - 1));
-    // }
-}
-
-// Check indices for operator[]
-template <class T>
-void Tensor<T>::checkIdx(const int32_t& idx) const {
-    assert(idx >= 0 && idx < this->size);
-
-    // if(idx < 0){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: cannot handle negative indices");
-    // }
-    // if(idx >= this->size){
-    //     throw std::invalid_argument("OUT-OF-INDEX ERROR: the provided index was " + std::to_string(idx) + ", but the maximum index for this dimension is " + std::to_string(this->size - 1));
-    // }
-}
-
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
     if(this->size != 0){
@@ -230,7 +171,9 @@ Tensor<T>& Tensor<T>::operator=(Tensor<T>&& other){
 // 3D operator at() const
 template <class T>
 const T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
-    this->checkIdx(C_idx, H_idx, W_idx);
+    assert(C_idx >= 0 && C_idx < this->nChannels);
+    assert(H_idx >= 0 && H_idx < this->height);
+    assert(W_idx >= 0 && W_idx < this->width);
     auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
     return this->data[idx];
 }
@@ -239,7 +182,9 @@ const T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t
 // 3D operator at() non-const
 template <class T>
 T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
-    this->checkIdx(C_idx, H_idx, W_idx);
+    assert(C_idx >= 0 && C_idx < this->nChannels);
+    assert(H_idx >= 0 && H_idx < this->height);
+    assert(W_idx >= 0 && W_idx < this->width);
     auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
     return this->data[idx];
 }
@@ -247,7 +192,10 @@ T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx
 // 4D operator at() const
 template <class T>
 const T& Tensor<T>::at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
-    this->checkIdx(E_idx, C_idx, H_idx, W_idx);
+    assert(E_idx >= 0 && E_idx < this->nElements);
+    assert(C_idx >= 0 && C_idx < this->nChannels);
+    assert(H_idx >= 0 && H_idx < this->height);
+    assert(W_idx >= 0 && W_idx < this->width);
     auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
     return this->data[idx];
 }
@@ -255,7 +203,10 @@ const T& Tensor<T>::at(const int32_t& E_idx, const int32_t& C_idx, const int32_t
 // 4D operator at() non-const
 template <class T>
 T& Tensor<T>::at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
-    this->checkIdx(E_idx, C_idx, H_idx, W_idx);
+    assert(E_idx >= 0 && E_idx < this->nElements);
+    assert(C_idx >= 0 && C_idx < this->nChannels);
+    assert(H_idx >= 0 && H_idx < this->height);
+    assert(W_idx >= 0 && W_idx < this->width);
     auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
     return this->data[idx];
 }
@@ -263,14 +214,14 @@ T& Tensor<T>::at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_id
 // Operator[] const
 template <class T>
 const T& Tensor<T>::operator[](const int32_t& idx) const {
-    this->checkIdx(idx);
+    assert(idx >= 0 && idx < this->size);
     return this->data[idx];
 }
 
 // Operator[] non-const
 template <class T>
 T& Tensor<T>::operator[](const int32_t& idx) {
-    this->checkIdx(idx);
+    assert(idx >= 0 && idx < this->size);
     return this->data[idx];
 }
 

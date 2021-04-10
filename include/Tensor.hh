@@ -32,13 +32,6 @@ private:
     // Initialize data
     void init_data(const tensor::init& init);
 
-    // Check indices for at() operator
-    void checkIdx(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
-    // Check indices for at() operator
-    void checkIdx(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
-    // Check indices for operator[]
-    void checkIdx(const int32_t& idx) const;
-
     // convolve thread (parallel)
     void convolveThread(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
         const uint32_t start_Eo, const uint32_t end_Eo,
