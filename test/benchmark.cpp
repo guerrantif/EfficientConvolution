@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]){
     // Convolution parameters
     auto stride = 1;
     auto padding = 0;
-    auto nThreads = std::thread::hardware_concurrency();
+    auto maxNThreads = std::thread::hardware_concurrency();
 
     // Test parameters
     constexpr uint32_t WARMUP_CYCLES = 10;
@@ -36,10 +36,10 @@ int main(int argc, char const *argv[]){
     /************************* Test Naive *************************************/
     {
         // WARM-UP
-        // for(auto i = 0; i < WARMUP_CYCLES; i++) {
-        //     float time = 0.0;
-        //     auto output = image.convolveNaive(kernel, stride, padding);
-        // }
+        for(auto i = 0; i < WARMUP_CYCLES; i++) {
+            float time = 0.0;
+            auto output = image.convolveNaive(kernel, stride, padding);
+        }
         // CONVOLUTION
         Statistics stat;
         for(auto i = 0; i < TEST_CYCLES; i++) {
@@ -49,12 +49,73 @@ int main(int argc, char const *argv[]){
         }
         std::cout << "time Naive: " << stat.getMedian() << " ms\n";
     }
+    std::cout << "__________________________________________________________\n";
     /**************************************************************************/
 
-    // Tensor<DType> output1 = image.convolveNaive(kernel, stride, padding);
-    // Tensor<DType> output2 = image.convolveParallelHo(kernel, stride, padding, nThreads);
-    // Tensor<DType> output3 = image.convolveParallelCo(kernel, stride, padding, nThreads);
-    // Tensor<DType> output4 = image.convolveParallelEo(kernel, stride, padding, nThreads);
+
+    // /******************** Test Convolve Parallel Ho ***************************/
+    {
+        for(auto nThreads = 2; nThreads <= maxNThreads; nThreads++) {
+            // WARM-UP
+            for(auto i = 0; i < WARMUP_CYCLES; i++) {
+                float time = 0.0;
+                auto output = image.convolveParallelHo(kernel, stride, padding, nThreads);
+            }
+            // CONVOLUTION
+            Statistics stat;
+            for(auto i = 0; i < TEST_CYCLES; i++) {
+                float executionTime = 0.0;
+                auto output = image.convolveParallelHo(kernel, stride, padding, nThreads, &executionTime);
+                stat.addToCollection(executionTime);
+            }
+            std::cout << "time Convolve_Ho (" << nThreads << " threads): " << stat.getMedian() << " ms\n";
+        }
+    }
+    std::cout << "__________________________________________________________\n";
+    /**************************************************************************/
+
+
+    /******************** Test Convolve Parallel Co ***************************/
+    {
+        for(auto nThreads = 2; nThreads <= maxNThreads; nThreads++) {
+            // WARM-UP
+            for(auto i = 0; i < WARMUP_CYCLES; i++) {
+                float time = 0.0;
+                auto output = image.convolveParallelCo(kernel, stride, padding, nThreads);
+            }
+            // CONVOLUTION
+            Statistics stat;
+            for(auto i = 0; i < TEST_CYCLES; i++) {
+                float executionTime = 0.0;
+                auto output = image.convolveParallelCo(kernel, stride, padding, nThreads, &executionTime);
+                stat.addToCollection(executionTime);
+            }
+            std::cout << "time Convolve_Co (" << nThreads << " threads): " << stat.getMedian() << " ms\n";
+        }
+    }
+    std::cout << "__________________________________________________________\n";
+    /**************************************************************************/
+
+    /******************** Test Convolve Parallel Eo ***************************/
+    {
+        for(auto nThreads = 2; nThreads <= maxNThreads; nThreads++) {
+            // WARM-UP
+            for(auto i = 0; i < WARMUP_CYCLES; i++) {
+                float time = 0.0;
+                auto output = image.convolveParallelEo(kernel, stride, padding, nThreads);
+            }
+            // CONVOLUTION
+            Statistics stat;
+            for(auto i = 0; i < TEST_CYCLES; i++) {
+                float executionTime = 0.0;
+                auto output = image.convolveParallelEo(kernel, stride, padding, nThreads, &executionTime);
+                stat.addToCollection(executionTime);
+            }
+            std::cout << "time Convolve_Eo (" << nThreads << " threads): " << stat.getMedian() << " ms\n";
+        }
+    }
+    std::cout << "__________________________________________________________\n";
+    /**************************************************************************/
 
     return 0;
 }

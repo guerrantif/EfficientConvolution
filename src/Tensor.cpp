@@ -637,7 +637,7 @@ Tensor<T> Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride
 
     if constexpr (DO_TIME){
         c.stop();
-        std::cout << c.getTime() << std::endl;
+        // std::cout << c.getTime() << std::endl;
         if(executionTime != nullptr) {
             *executionTime = c.getTime();
         }

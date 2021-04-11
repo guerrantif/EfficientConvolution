@@ -1,6 +1,6 @@
 CXX=g++
 STD=c++17
-CXXFLAGS= -O0 --std=$(STD)
+CXXFLAGS= -O0 --std=$(STD) -g
 
 TARGETS= testTensor benchmark
 
