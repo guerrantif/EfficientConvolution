@@ -45,16 +45,16 @@ private:
 
 public:
     // Convolution operator (parallel) - dimension: output height
-    Tensor<T> convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+    Tensor<T> convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime=nullptr) const;
 
     // Convolution operator (parallel) - dimension: output nChannels
-    Tensor<T> convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+    Tensor<T> convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime=nullptr) const;
 
     // Convolution operator (parallel) - dimension: output nElements
-    Tensor<T> convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+    Tensor<T> convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime=nullptr) const;
 
     // Convolution Naive
-    Tensor<T> convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const;
+    Tensor<T> convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const float* executionTime=nullptr) const;
 
 public:
     // Default constructor
@@ -133,8 +133,8 @@ public:
     inline const std::vector<uint32_t>& getShape() const { return this->shape; }
 
     // Convolutions
-    Tensor<T> convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
-    Tensor<T> convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const;
+    Tensor<T> convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime=nullptr) const;
+    Tensor<T> convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const float* executionTime=nullptr) const;
 
     // invalidate this tensor
     void invalidate();

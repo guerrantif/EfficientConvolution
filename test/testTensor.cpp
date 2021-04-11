@@ -14,7 +14,7 @@ int main(int argc, char const *argv[]){
     auto stride = 1;
     auto padding = 0;
     auto nThreads = 4;
-
+    
     Tensor<DType> output1 = image.convolveNaive(kernel, stride, padding);
     Tensor<DType> output2 = image.convolveParallelHo(kernel, stride, padding, nThreads);
     Tensor<DType> output3 = image.convolveParallelCo(kernel, stride, padding, nThreads);
