@@ -300,7 +300,7 @@ bool Tensor<T>::isValid() const{
 
 // Convolutions
 template <class T>
-Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime) const {
+Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
 
     auto Eo = this->nElements;
     auto Co = kernel.nElements;
@@ -324,7 +324,7 @@ Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, con
 
 // Convolutions
 template <class T>
-Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const float* executionTime) const {
+Tensor<T> Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, float* executionTime) const {
 
     // ------ TODO ------
     auto nThreads = 4;
@@ -387,7 +387,7 @@ void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const
 
 // Convolution operation (Parallel) - Dimension: Output height
 template <class T>
-Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime) const {
+Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -438,7 +438,11 @@ Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t s
 
     if constexpr (DO_TIME){
         c.stop();
-        std::cout << c.getTime() << std::endl;
+        // std::cout << c.getTime() << std::endl;
+        if(executionTime != nullptr) {
+            *executionTime = c.getTime();
+        }
+
     }
 
     for(auto& thread : threads) {
@@ -451,7 +455,7 @@ Tensor<T> Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t s
 
 // Convolution operation (Parallel) - Dimension: Output nChannel
 template <class T>
-Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime) const {
+Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -502,7 +506,10 @@ Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t s
 
     if constexpr (DO_TIME){
         c.stop();
-        std::cout << c.getTime() << std::endl;
+        // std::cout << c.getTime() << std::endl;
+        if(executionTime != nullptr) {
+            *executionTime = c.getTime();
+        }
     }
 
     for(auto& thread : threads) {
@@ -514,7 +521,7 @@ Tensor<T> Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t s
 
 // Convolution operation (Parallel) - Dimension: Output nElements
 template <class T>
-Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, const float* executionTime) const {
+Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -565,7 +572,10 @@ Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t s
 
     if constexpr (DO_TIME){
         c.stop();
-        std::cout << c.getTime() << std::endl;
+        // std::cout << c.getTime() << std::endl;
+        if(executionTime != nullptr) {
+            *executionTime = c.getTime();
+        }
     }
 
     for(auto& thread : threads) {
@@ -578,7 +588,7 @@ Tensor<T> Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t s
 
 // Convolution operation (Naive)
 template<class T>
-Tensor<T> Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const float* executionTime) const {
+Tensor<T> Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -628,6 +638,9 @@ Tensor<T> Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride
     if constexpr (DO_TIME){
         c.stop();
         std::cout << c.getTime() << std::endl;
+        if(executionTime != nullptr) {
+            *executionTime = c.getTime();
+        }
     }
 
     return output;

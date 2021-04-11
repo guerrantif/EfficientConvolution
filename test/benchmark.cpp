@@ -27,7 +27,7 @@ int main(int argc, char const *argv[]){
 
     // Test parameters
     constexpr uint32_t WARMUP_CYCLES = 10;
-    constexpr uint32_t TEST_CYCLES = 100;
+    constexpr uint32_t TEST_CYCLES = 5;
 
     // Create input and kernel
     Tensor<DType> image{Ei,Ci,Hi,Hi,tensor::init::RAND};
@@ -36,25 +36,25 @@ int main(int argc, char const *argv[]){
     /************************* Test Naive *************************************/
     {
         // WARM-UP
-        for(auto i = 0; i < WARMUP_CYCLES; i++) {
-            float time = 0.0;
-            auto output = image.convolveNaive(kernel, stride, padding);
-        }
+        // for(auto i = 0; i < WARMUP_CYCLES; i++) {
+        //     float time = 0.0;
+        //     auto output = image.convolveNaive(kernel, stride, padding);
+        // }
         // CONVOLUTION
         Statistics stat;
         for(auto i = 0; i < TEST_CYCLES; i++) {
-            float time = 0.0;
-            auto output = image.convolveNaive(kernel, stride, padding);
-            stat.addToCollection(time);
+            float executionTime = 0.0;
+            auto output = image.convolveNaive(kernel, stride, padding, &executionTime);
+            stat.addToCollection(executionTime);
         }
         std::cout << "time Naive: " << stat.getMedian() << " ms\n";
     }
     /**************************************************************************/
 
-    Tensor<DType> output1 = image.convolveNaive(kernel, stride, padding);
-    Tensor<DType> output2 = image.convolveParallelHo(kernel, stride, padding, nThreads);
-    Tensor<DType> output3 = image.convolveParallelCo(kernel, stride, padding, nThreads);
-    Tensor<DType> output4 = image.convolveParallelEo(kernel, stride, padding, nThreads);
+    // Tensor<DType> output1 = image.convolveNaive(kernel, stride, padding);
+    // Tensor<DType> output2 = image.convolveParallelHo(kernel, stride, padding, nThreads);
+    // Tensor<DType> output3 = image.convolveParallelCo(kernel, stride, padding, nThreads);
+    // Tensor<DType> output4 = image.convolveParallelEo(kernel, stride, padding, nThreads);
 
     return 0;
 }
