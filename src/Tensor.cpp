@@ -168,6 +168,33 @@ Tensor<T>& Tensor<T>::operator=(Tensor<T>&& other){
     return *this;
 }
 
+// ################# Private operators at() #################
+// 3D operator at() const
+template <class T>
+const T& Tensor<T>::_at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
+    return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+}
+
+// 3D operator at() non-const
+template <class T>
+T& Tensor<T>::_at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
+    return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+}
+
+// 4D operator at() const
+template <class T>
+const T& Tensor<T>::_at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
+    return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+}
+
+// 4D operator at() non-const
+template <class T>
+T& Tensor<T>::_at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
+    auto idx = ;
+    return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+}
+
+// ################# Public operators at() #################
 // 3D operator at() const
 template <class T>
 const T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
@@ -177,7 +204,6 @@ const T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t
     auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
     return this->data[idx];
 }
-
 
 // 3D operator at() non-const
 template <class T>

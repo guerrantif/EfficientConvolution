@@ -42,6 +42,17 @@ private:
         const uint32_t start_Hf, const uint32_t end_Hf,
         const uint32_t start_Wo, const uint32_t end_Wo,
         const uint32_t start_Wf, const uint32_t end_Wf) const;
+    
+    // ################# Private operators at() #################
+    // 3D operator at() const
+    const T& _at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
+    // 3D operator at() non-const
+    T& _at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx);
+
+    // 4D operator at() const
+    const T& _at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
+    // 4D operator at() non-const
+    T& _at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx);
 
 public:
     // Convolution operator (parallel) - dimension: output height
