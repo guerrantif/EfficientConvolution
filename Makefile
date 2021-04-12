@@ -1,8 +1,8 @@
 CXX=g++
 STD=c++17
-CXXFLAGS= -O0 --std=$(STD)
+CXXFLAGS= -O0 --std=$(STD) -g
 
-TARGETS= testTensor
+TARGETS= testTensor benchmark
 
 OUT_DIR=./bin
 SRC_DIR=./src
@@ -15,7 +15,7 @@ LDFLAGS= -pthread
 SOURCES = $(shell find $(SRC_DIR) -name '*.cpp' | sort -k 1nr | cut -f2-)
 OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
-all: $(OUT_DIR)/$(TARGETS) dirs
+all: dirs $(addprefix $(OUT_DIR)/, $(TARGETS))
 
 dirs:
 	@mkdir -p $(OUT_DIR)
@@ -25,8 +25,8 @@ dirs:
 $(OUT_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-# benchmark naive
-$(OUT_DIR)/benchmarkNaive: $(BUILD_DIR)/Tensor.o $(BUILD_DIR)/Chronometer.o $(BUILD_DIR)/benchmarkNaive.o
+# benchmark
+$(OUT_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 
