@@ -2,7 +2,7 @@ CXX			= g++
 STD			= c++17
 opt			= false
 ifeq ($(opt), true)
-OPT 		= O3
+OPT			= O3
 else
 OPT			= O0
 endif
