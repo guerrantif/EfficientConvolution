@@ -11,8 +11,8 @@ int main(int argc, char const *argv[]){
     // Input Dimension
     constexpr uint32_t Ei = 1;
     constexpr uint32_t Ci = 3;
-    constexpr uint32_t Hi = 600;
-    constexpr uint32_t Wi = 600;
+    constexpr uint32_t Hi = 200;
+    constexpr uint32_t Wi = 200;
 
     // Kernel Dimension
     constexpr uint32_t Ef = 64;
