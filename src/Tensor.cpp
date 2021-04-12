@@ -190,7 +190,6 @@ const T& Tensor<T>::_at(const int32_t& E_idx, const int32_t& C_idx, const int32_
 // 4D operator at() non-const
 template <class T>
 T& Tensor<T>::_at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
-    auto idx = ;
     return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
 }
 
