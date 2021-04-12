@@ -38,7 +38,7 @@ $(OUT_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 ifeq ($(opt), true)
-# benchmark
+# benchmark_opt
 $(OUT_DIR)/benchmark_opt: $(OBJECTS) $(BUILD_DIR)/benchmark.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 else
