@@ -9,13 +9,13 @@ int main(int argc, char const *argv[]){
     typedef float DType;
 
     // Input Dimension
-    constexpr uint32_t Ei = 1;
+    constexpr uint32_t Ei = 5;
     constexpr uint32_t Ci = 3;
-    constexpr uint32_t Hi = 200;
-    constexpr uint32_t Wi = 200;
+    constexpr uint32_t Hi = 50;
+    constexpr uint32_t Wi = 50;
 
     // Kernel Dimension
-    constexpr uint32_t Ef = 64;
+    constexpr uint32_t Ef = 4;
     constexpr uint32_t Cf = 3;
     constexpr uint32_t Hf = 5;
     constexpr uint32_t Wf = 5;
@@ -30,8 +30,8 @@ int main(int argc, char const *argv[]){
     auto maxNThreads = std::thread::hardware_concurrency();
 
     // Test parameters
-    constexpr uint32_t WARMUP_CYCLES = 0;
-    constexpr uint32_t TEST_CYCLES = 2;
+    constexpr uint32_t WARMUP_CYCLES = 100;
+    constexpr uint32_t TEST_CYCLES = 5;
 
     // Create input and kernel
     Tensor<DType> image{Ei,Ci,Hi,Hi,tensor::init::RAND};
