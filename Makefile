@@ -8,7 +8,7 @@ OPT 		= O0
 endif
 CXXFLAGS	= -$(OPT) --std=$(STD) $(INCLUDES) -g
 
-TARGETS		= testTensor 
+TARGETS		=  
 ifeq ($(opt), true)
 TARGETS		+= benchmark_opt 
 else
