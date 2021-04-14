@@ -1,5 +1,5 @@
 # Efficient Convolution
-Implementation of an efficient convolution between 3D tensors and 4D tensors.
+Implementation of an efficient convolution algorithm between 3D and/or 4D tensors.
 
 ## Abstract
 The aim of this project is to implement the efficient Direct Convolution algorithm based on the paper [High Performance Zero-Memory Overhead Direct Convolutions][main-paper] by Zhang et al.
@@ -7,8 +7,12 @@ The main problem when performing convolutions in deep neural network is that, us
 
 
 ## Outline
-
-
+- Implementation of the `Tensor` class
+- Implementation of the `ConvolveThread` method
+- Implementation of the `ConvolveParallel` methods
+  - `ConvolveParallelHo`
+  - `ConvolveParallelCo`
+  - `ConvolveParallelEo`
 
 
 ## Info
