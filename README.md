@@ -15,8 +15,8 @@ The main problem when performing convolutions in deep neural network is that, us
 
 Authors: 
 
-- Filippo Guerranti* <filippo.guerranti@student.unisi.it>
-- Mirco Mannino* <mirco.mannino@student.unisi.it>
+- Filippo Guerranti* \<filippo.guerranti@student.unisi.it\>
+- Mirco Mannino* \<mirco.mannino@student.unisi.it\>
 
 > \* Equal contribution.
 
