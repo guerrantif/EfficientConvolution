@@ -6,14 +6,60 @@ The aim of this project is to implement the efficient Direct Convolution algorit
 The main problem when performing convolutions in deep neural network is that, usually, those higly specialized algorithms trade space for time, incurring in an important memory overhead. The direct convolution could allow us to reduce the memory overhead while keeping performances high.
 
 
-## Outline
-- Implementation of the `Tensor` class
-- Implementation of the `ConvolveThread` method
-- Implementation of the `ConvolveParallel` methods
-  - `ConvolveParallelHo`
-  - `ConvolveParallelCo`
-  - `ConvolveParallelEo`
+---
+**Table of contents**
 
+* [Tensor class](#tensor-class)
+* [Convolve threads](#convolve-threads)
+* [Convolution](#convolution)
+* [Tests](#tests)
+* [Future developments](#future-developments)
+* [Directory structure](#directory-structure)
+* [Documentation](#documentation)
+* [Info](#info)
+
+---
+
+## Tensor class
+
+## Convolve threads
+
+## Convolution
+
+## Tests
+
+## Future developments
+
+## Directory structure
+
+```
+.
+├── bin
+│   ├── benchmark_nopt
+│   └── benchmark_opt
+├── build
+│   ├── benchmark.o
+│   ├── Chronometer.o
+│   ├── Statistics.o
+│   └── Tensor.o
+├── doc
+│   └── todo.txt
+├── include
+│   ├── Chronometer.hh
+│   ├── Statistics.hh
+│   └── Tensor.hh
+├── src
+│   ├── Chronometer.cpp
+│   ├── Statistics.cpp
+│   └── Tensor.cpp
+├── test
+│   ├── benchmark.cpp
+│   └── testTensor.cpp
+├── Makefile
+└── README.md
+```
+
+## Documentation
 
 ## Info
 
