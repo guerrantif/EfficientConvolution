@@ -15,7 +15,7 @@ The main problem when performing convolutions in deep neural network is that, us
 * [Tests](#tests)
 * [Future developments](#future-developments)
 * [Directory structure](#directory-structure)
-* [Documentation](#documentation)
+* [Documentation and references](#documentation-and-references)
 * [Info](#info)
 
 ---
@@ -59,7 +59,11 @@ The main problem when performing convolutions in deep neural network is that, us
 └── README.md
 ```
 
-## Documentation
+## Documentation and references
+
+[\[1\]][main-paper] Zhang, J., Franchetti, F. &amp; Low, T.M.. (2018). High Performance Zero-Memory Overhead Direct Convolutions. *Proceedings of the 35th International Conference on Machine Learning*, in *Proceedings of Machine Learning Research* 80:5776-5785
+
+
 
 ## Info
 
