@@ -63,6 +63,7 @@ The main problem when performing convolutions in deep neural network is that, us
 
 [\[1\]][main-paper] Zhang, J., Franchetti, F. &amp; Low, T.M.. (2018). High Performance Zero-Memory Overhead Direct Convolutions. *Proceedings of the 35th International Conference on Machine Learning*, in *Proceedings of Machine Learning Research* 80:5776-5785
 
+[\[2\]][concurrency-book] Williams, A. (2019). C++ concurrency in action (Second edition). *Manning Publications Co.*
 
 
 ## Info
@@ -83,6 +84,7 @@ Link to this project: [https://github.com/filippoguerranti/efficientconvolution]
 
 
 [main-paper]: http://proceedings.mlr.press/v80/zhang18d/zhang18d.pdf
+[concurrency-book]: https://www.manning.com/books/c-plus-plus-concurrency-in-action-second-edition
 
 [project]: https://github.com/filippoguerranti/efficientconvolution
 [unisi]: https://www.unisi.it/
