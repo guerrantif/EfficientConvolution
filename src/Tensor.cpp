@@ -400,7 +400,7 @@ void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const
                                 auto Wi_idx = k*stride+m-padding;
                                 bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
                                 auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
-                                output.at(p, j, l, k) += inputTensorValue * kernel.at(j, i, n, m);
+                                output._at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
                             }
                         }
                     }
@@ -651,7 +651,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t strid
                                 auto Wi_idx = k*stride+m-padding;
                                 bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
                                 auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
-                                output->at(p, j, l, k) += inputTensorValue * kernel.at(j, i, n, m);
+                                output->_at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
                             }
                         }
                     }

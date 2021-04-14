@@ -32,23 +32,26 @@ nopt: .preprocess $(BIN_DIR)/benchmark_nopt
 
 # testTensor
 $(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo "$(BIN_DIR)/testTensor built successfully."
 
 # benchmark_opt
 $(BIN_DIR)/benchmark_opt: $(OBJECTS) $(BUILD_DIR)/benchmark.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo "$(BIN_DIR)/benchmark_opt built successfully."
 	
 # benchmark_nopt
 $(BIN_DIR)/benchmark_nopt: $(OBJECTS) $(BUILD_DIR)/benchmark.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo "$(BIN_DIR)/benchmark_nopt built successfully."
 
 # Compile src folder
 $(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
+	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 # Compile test folder
 $(BUILD_DIR)/%.o: $(TEST_DIR)/%.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
+	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 .PHONY: clean
 clean:
