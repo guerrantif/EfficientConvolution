@@ -31,28 +31,28 @@ int main(int argc, char const *argv[]){
 
     // Test parameters
     constexpr uint32_t WARMUP_CYCLES = 0;
-    constexpr uint32_t TEST_CYCLES = 5;
+    constexpr uint32_t TEST_CYCLES = 1;
 
     // Create input and kernel
     Tensor<DType> image{Ei,Ci,Hi,Hi,tensor::init::RAND};
     Tensor<DType> kernel{Ef,Cf,Hf,Wf,tensor::init::RAND};
 
     /************************* Test Naive *************************************/
-    {
-        // WARM-UP
-        for(auto i = 0; i < WARMUP_CYCLES; i++) {
-            auto output = image.convolveNaive(kernel, stride, padding);
-        }
-        // CONVOLUTION
-        Statistics stat;
-        for(auto i = 0; i < TEST_CYCLES; i++) {
-            float executionTime = 0.0;
-            auto output = image.convolveNaive(kernel, stride, padding, &executionTime);
-            stat.addToCollection(executionTime);
-        }
-        std::cout << "time Naive: " << stat.getMedian() << " ms\n";
-    }
-    std::cout << "__________________________________________________________\n";
+    // {
+    //     // WARM-UP
+    //     for(auto i = 0; i < WARMUP_CYCLES; i++) {
+    //         auto output = image.convolveNaive(kernel, stride, padding);
+    //     }
+    //     // CONVOLUTION
+    //     Statistics stat;
+    //     for(auto i = 0; i < TEST_CYCLES; i++) {
+    //         float executionTime = 0.0;
+    //         auto output = image.convolveNaive(kernel, stride, padding, &executionTime);
+    //         stat.addToCollection(executionTime);
+    //     }
+    //     std::cout << "time Naive: " << stat.getMedian() << " ms\n";
+    // }
+    // std::cout << "__________________________________________________________\n";
     /**************************************************************************/
 
 
