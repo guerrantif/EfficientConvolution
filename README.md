@@ -1,6 +1,8 @@
 # Efficient Convolution
 Implementation of an efficient convolution algorithm between 3D and/or 4D tensors.
 
+> For further details we suggest to refer to the [slides][slides].
+
 ## Abstract
 The aim of this project is to implement the efficient Direct Convolution algorithm based on the paper [High Performance Zero-Memory Overhead Direct Convolutions][main-paper] by Zhang et al.
 The main problem when performing convolutions in deep neural network is that, usually, those higly specialized algorithms trade space for time, incurring in an important memory overhead. The direct convolution could allow us to reduce the memory overhead while keeping performances high.
@@ -180,6 +182,7 @@ Link to this project: [https://github.com/filippoguerranti/efficientconvolution]
 [main-paper]: http://proceedings.mlr.press/v80/zhang18d/zhang18d.pdf
 [concurrency-book]: https://www.manning.com/books/c-plus-plus-concurrency-in-action-second-edition
 
+[slides]: https://github.com/filippoguerranti/EfficientConvolution/blob/main/doc/EfficientConvolution.pdf
 [project]: https://github.com/filippoguerranti/efficientconvolution
 [unisi]: https://www.unisi.it/
 [diism]: https://www.diism.unisi.it/it
