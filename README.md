@@ -10,10 +10,12 @@ The main problem when performing convolutions in deep neural network is that, us
 **Table of contents**
 
 * [Tensor class](#tensor-class)
-* [Convolve threads](#convolve-threads)
-* [Convolution](#convolution)
+  * [Attributes](#class-attributes)
+  * [Constructors](#class-constructors)
+  * [Operators-at](#operators-at)
+  * [Convolve threads](#convolve-threads)
+  * [Convolution](#convolution)
 * [Tests](#tests)
-* [Future developments](#future-developments)
 * [Directory structure](#directory-structure)
 * [Documentation and references](#documentation-and-references)
 * [Info](#info)
@@ -22,34 +24,105 @@ The main problem when performing convolutions in deep neural network is that, us
 
 ## Tensor class
 
-## Convolve threads
+The project is entirely base on the `Tensor` class, which allows us to handle 3D and 4D tensor. Those tensors will be used as input images and kernels for the convolution operation.
 
-## Convolution
+### Class attributes
+```c++
+private:
+   // Main class members
+   T* data;
+   uint32_t nElements;
+   uint32_t nChannels;
+   uint32_t height;
+   uint32_t width;
+   // Secondary class members
+   uint32_t size;
+   std::vector<uint32_t> shape;
+   bool valid;
+```
+![](/img/tensor_to_data.png)
+
+### Class constructors
+
+```c++
+public:
+   // Default constructor
+   Tensor();
+   // 3D constructor
+   Tensor(const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init);
+   // 4D constructor
+   Tensor(const uint32_t& nElements_, const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init);
+   // Copy constructor
+   Tensor(const Tensor<T>& other);
+   // Move constructor
+   Tensor(Tensor<T>&& other);
+```
+
+### Operators-at
+The convolution operation is mainly based on the `at()` (`_at()`) operator, that is used in the inner loop of the `convolveThread` method itself and provides high flexibility due to its overloading.
+
+The operator comes in a `public` interface and in a `private` one. The former is more reliable and error-free, while the latter is used for performance issues.
+```c++
+public:
+   // 3D operator at() const
+   const T& at(const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx) const;
+   // 3D operator at() non-const
+   T& at(const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx);
+
+   // 4D operator at() const
+   const T& at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx) const;
+   // 4D operator at() non-const
+   T& at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx);
+```
+```c++
+private:
+   // 3D operator _at() const
+   const T& _at(const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx) const;
+   // 3D operator _at() non-const
+   T& _at(const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx);
+
+   // 4D operator _at() const
+   const T& _at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx) const;
+   // 4D operator _at() non-const
+   T& _at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t& W_idx);
+
+```
+
+### Convolve threads
+The convolution operation is parallelized using several threads, each of them performing the convolution on different section of the original `data` pointers (input and kernel tensors). The involved method is `convolveThread` and is implemented in the fashion exposed in the [original paper](main-paper).
+
+### Convolution
+Once the `convolveThread` operation is implemented, one can decide the dimension in which to parallelize, whether the number of elments, the number of channels or the height.
+![](/img/convolveThread.png)
+```c++
+public:
+   // Convolution operator (parallel) - dimension: output height
+   Tensor<T>& convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+   // Convolution operator (parallel) - dimension: output nChannels
+   Tensor<T>& convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+   // Convolution operator (parallel) - dimension: output nElements
+   Tensor<T>& convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+   
+   // Convolution Naive (sequential)
+   Tensor<T>& convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const;
+
+   // Convolution operator that select automatically dimension for parallelization
+   Tensor<T>& convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads) const;
+   // Convolution operator that select automatically dimension for parallelization and number of threads
+   Tensor<T>& convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding) const;
+
+```
+
 
 ## Tests
 
-### Speed-up with respect to 1 thread for `convolveParallelHo`
+### Speed-up: w.r.t. Naive impl. for different thread number
+![](/img/results1.png)
 
-The table shows the speed-up in terms of time that the algorith allows to achieve with respect to the naive implementation (single thread).
-The columns represents the speed-up achieved with 2,3,...,8 thread in an Apple Silicon M1, with different dimensions for the input image and for the kernel.
+### Speed-up: w.r.t. Naive impl. for 8 threads and different inputs
+![](/img/results2.png)
 
-| Input image   | Kernel   |     2     |     3     |     4     |     5     |     6     |     7     |     8     |
-|---------------|----------|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|
-| 1x3x10x10     | 32x3x5x5 | 3.1008403 | 3.3915441 | 3.5549133 | 3.9171975 | 3.2829181 | 3.7653061 | 3.8437500 |
-| 1x3x50x50     | 32x3x5x5 | 1.9456557 | 2.7072185 | 3.5367457 | 2.9330250 | 3.3124417 | 3.7365597 | 4.2070599 |
-| 1x3x200x200   | 32x3x5x5 | 1.9322793 | 2.7761844 | 3.7216983 | 3.9267366 | 4.1905258 | 4.6358473 | 4.8186600 |
-| 1x3x600x600   | 32x3x5x5 | 1.9326446 | 2.7914715 | 3.7261775 | 4.0380422 | 4.3352154 | 4.6780569 | 4.8617349 |
-| 100x3x10x10   | 32x3x5x5 | 1.8964603 | 2.7382497 | 2.7367169 | 2.7963298 | 3.3518254 | 3.3156437 | 3.3070462 |
-| 100x3x50x50   | 32x3x5x5 | 1.9328705 | 2.6964970 | 3.5830416 | 3.7938718 | 4.3005585 | 4.5927053 | 4.9176219 |
-| 100x3x200x200 | 32x3x5x5 | 1.9679280 | 2.8054977 | 3.6861781 | 4.0198475 | 4.3909035 | 4.7371933 | 4.9570360 |
-| 1x3x10x10     | 64x3x5x5 | 2.6594684 | 3.5617353 | 3.3010309 | 3.1988012 | 4.4287690 | 4.1638492 | 4.4971910 |
-| 1x3x50x50     | 64x3x5x5 | 1.9312402 | 2.6857143 | 3.5560075 | 2.8283253 | 3.3241124 | 3.7305169 | 4.3058737 |
-| 1x3x200x200   | 64x3x5x5 | 1.9324164 | 2.7778923 | 3.7322537 | 3.9953191 | 4.3397600 | 4.6645711 | 4.8468604 |
-| 1x3x600x600   | 64x3x5x5 | 1.9410065 | 2.8079425 | 3.7326643 | 3.9491131 | 4.2610677 | 4.3410606 | 4.9740932 |
-| 100x3x10x10   | 64x3x5x5 | 1.9175146 | 2.8268329 | 2.8268329 | 2.8487339 | 3.4202257 | 3.5204624 | 3.4878825 |
-| 100x3x50x50   | 64x3x5x5 | 1.9343341 | 2.6959627 | 3.5862344 | 3.8268883 | 4.3338427 | 4.6194773 | 4.9430258 |
 
-## Future developments
 
 ## Directory structure
 
