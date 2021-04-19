@@ -325,7 +325,7 @@ bool Tensor<T>::isValid() const{
 
 // Convolutions
 template <class T>
-Tensor<T>& Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolve(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime) const {
 
     auto Eo = this->nElements;
     auto Co = kernel.nElements;
@@ -349,7 +349,7 @@ Tensor<T>& Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, co
 
 // Convolutions
 template <class T>
-Tensor<T>& Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolve(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
 
     // ------ TODO ------
     auto nThreads = 4;
@@ -377,7 +377,7 @@ Tensor<T>& Tensor<T>::convolve(const Tensor<T>& kernel, const int32_t stride, co
 
 // convolve thread (parallel)
 template <class T>
-void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
+void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding,
     const uint32_t start_Eo, const uint32_t end_Eo,
     const uint32_t start_Co, const uint32_t end_Co,
     const uint32_t start_Ci, const uint32_t end_Ci,
@@ -396,8 +396,8 @@ void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const
                     for(auto n = start_Hf; n < end_Hf; n++) {
                         for(auto k = start_Wo; k < end_Wo; k++) {
                             for(auto m = start_Wf; m < end_Wf; m++) {
-                                auto Hi_idx = l*stride+n-padding;
-                                auto Wi_idx = k*stride+m-padding;
+                                int32_t Hi_idx = l*stride+n-padding;
+                                int32_t Wi_idx = k*stride+m-padding;
                                 bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
                                 auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
                                 output._at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
@@ -412,7 +412,7 @@ void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const
 
 // Convolution operation (Parallel) - Dimension: Output height
 template <class T>
-Tensor<T>& Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -479,7 +479,7 @@ Tensor<T>& Tensor<T>::convolveParallelHo(const Tensor<T>& kernel, const int32_t 
 
 // Convolution operation (Parallel) - Dimension: Output nChannel
 template <class T>
-Tensor<T>& Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -546,7 +546,7 @@ Tensor<T>& Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const int32_t 
 
 // Convolution operation (Parallel) - Dimension: Output nElements
 template <class T>
-Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -613,7 +613,7 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const int32_t 
 
 // Convolution operation (Naive)
 template<class T>
-Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -647,8 +647,8 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const int32_t strid
                     for(auto n = 0; n < Hf; n++) {
                         for(auto k = 0; k < Wo; k++) {
                             for(auto m = 0; m < Wf; m++) {
-                                auto Hi_idx = l*stride+n-padding;
-                                auto Wi_idx = k*stride+m-padding;
+                                int32_t Hi_idx = l*stride+n-padding;
+                                int32_t Wi_idx = k*stride+m-padding;
                                 bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
                                 auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
                                 output->_at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
