@@ -34,7 +34,7 @@ private:
     void init_data(const tensor::init& init);
 
     // convolve thread (parallel)
-    void convolveThread(Tensor& output, const Tensor<T>& kernel, const int32_t stride, const int32_t padding,
+    void convolveThread(Tensor& output, const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding,
         const uint32_t start_Eo, const uint32_t end_Eo,
         const uint32_t start_Co, const uint32_t end_Co,
         const uint32_t start_Ci, const uint32_t end_Ci,
@@ -45,27 +45,27 @@ private:
     
     // ################# Private operators at() #################
     // 3D operator at() const
-    const T& _at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
+    const T& _at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
     // 3D operator at() non-const
-    T& _at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx);
+    T& _at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
 
     // 4D operator at() const
-    const T& _at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
+    const T& _at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
     // 4D operator at() non-const
-    T& _at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx);
+    T& _at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
 
 public:
     // Convolution operator (parallel) - dimension: output height
-    Tensor<T>& convolveParallelHo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
+    Tensor<T>& convolveParallelHo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
 
     // Convolution operator (parallel) - dimension: output nChannels
-    Tensor<T>& convolveParallelCo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
+    Tensor<T>& convolveParallelCo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
 
     // Convolution operator (parallel) - dimension: output nElements
-    Tensor<T>& convolveParallelEo(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
+    Tensor<T>& convolveParallelEo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
 
     // Convolution Naive
-    Tensor<T>& convolveNaive(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, float* executionTime =nullptr) const;
+    Tensor<T>& convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
 
 public:
     // Default constructor
@@ -88,14 +88,14 @@ public:
     Tensor<T>& operator=(Tensor<T>&& other);
 
     // 3D operator at() const
-    const T& at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
+    const T& at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
     // 3D operator at() non-const
-    T& at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx);
+    T& at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
 
     // 4D operator at() const
-    const T& at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const;
+    const T& at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
     // 4D operator at() non-const
-    T& at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx);
+    T& at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
 
     // Operator[] const
     const T& operator[](const int32_t& idx) const;
@@ -144,8 +144,8 @@ public:
     inline const std::vector<uint32_t>& getShape() const { return this->shape; }
 
     // Convolutions
-    Tensor<T>& convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, const uint32_t nThreads, float* executionTime=nullptr) const;
-    Tensor<T>& convolve(const Tensor<T>& kernel, const int32_t stride, const int32_t padding, float* executionTime=nullptr) const;
+    Tensor<T>& convolve(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime=nullptr) const;
+    Tensor<T>& convolve(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime=nullptr) const;
 
     // invalidate this tensor
     void invalidate();
