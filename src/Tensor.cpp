@@ -171,32 +171,32 @@ Tensor<T>& Tensor<T>::operator=(Tensor<T>&& other){
 // ################# Private operators at() #################
 // 3D operator at() const
 template <class T>
-const T& Tensor<T>::_at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
+const T& Tensor<T>::_at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
     return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
 }
 
 // 3D operator at() non-const
 template <class T>
-T& Tensor<T>::_at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
+T& Tensor<T>::_at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
     return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
 }
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::_at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
+const T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
     return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::_at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
+T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
     return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
 }
 
 // ################# Public operators at() #################
 // 3D operator at() const
 template <class T>
-const T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
+const T& Tensor<T>::at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
@@ -206,7 +206,7 @@ const T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t
 
 // 3D operator at() non-const
 template <class T>
-T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
+T& Tensor<T>::at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
@@ -216,7 +216,7 @@ T& Tensor<T>::at(const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) const {
+const T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
@@ -227,7 +227,7 @@ const T& Tensor<T>::at(const int32_t& E_idx, const int32_t& C_idx, const int32_t
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::at(const int32_t& E_idx, const int32_t& C_idx, const int32_t& H_idx, const int32_t W_idx) {
+T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
