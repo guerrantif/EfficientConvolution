@@ -1,9 +1,9 @@
 CXX 		= g++
 STD 		= c++17
 OPT 		= O3
-CXXFLAGS	= --std=$(STD) $(INCLUDES) -g
+CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT}
 
-TARGETS 	= testTensor benchmark_opt benchmark_nopt
+TARGETS 	= testTensor benchmark
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -17,47 +17,34 @@ LDFLAGS		= -pthread
 SOURCES 	= $(shell find $(SRC_DIR) -name '*.cpp' | sort -k 1nr | cut -f2-)
 OBJECTS 	= $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
-all: .dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
+all: dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
 
-.preprocess: .clean_build .dirs
-
-.dirs:
+dirs:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(BUILD_DIR)
 
-opt: CXXFLAGS += -$(OPT)
-opt: .preprocess $(BIN_DIR)/benchmark_opt
-
-nopt: .preprocess $(BIN_DIR)/benchmark_nopt
-
 # testTensor
 $(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo "$(BIN_DIR)/testTensor built successfully."
 
-# benchmark_opt
-$(BIN_DIR)/benchmark_opt: $(OBJECTS) $(BUILD_DIR)/benchmark.o
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+# benchmark
+$(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo "$(BIN_DIR)/benchmark_opt built successfully."
 	
-# benchmark_nopt
-$(BIN_DIR)/benchmark_nopt: $(OBJECTS) $(BUILD_DIR)/benchmark.o
-	@$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/benchmark_nopt built successfully."
 
 # Compile src folder
 $(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
-	@$(CXX) -c $< -o $@ $(CXXFLAGS)
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 # Compile test folder
 $(BUILD_DIR)/%.o: $(TEST_DIR)/%.cpp
-	@$(CXX) -c $< -o $@ $(CXXFLAGS)
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
-.PHONY: clean
 clean:
-	@rm -rf $(BUILD_DIR)/*.o
-	@rm -rf $(BIN_DIR)/*
+	rm -rf $(BUILD_DIR)/*.o
+	rm -rf $(BIN_DIR)/*
 
-.PHONY: clean_build
-.clean_build:
-	@rm -rf $(BUILD_DIR)/*.o
+clean_build:
+	rm -rf $(BUILD_DIR)/*.o
