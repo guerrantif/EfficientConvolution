@@ -19,7 +19,7 @@ namespace tensor{
 template <class T>
 class Tensor {
 private:
-    // Main class members
+     // Main class members
     T* data;
     uint32_t nElements;
     uint32_t nChannels;
