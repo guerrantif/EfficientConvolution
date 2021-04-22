@@ -11,7 +11,9 @@
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
     assert(this->size != 0);
-    this->data = new T[this->size];
+    // this->data = new T[this->size];
+    posix_memalign((void**)&(this->data), 16, (this->size)*sizeof(T));
+    
     if(init == tensor::init::ZEROS){
         if constexpr (DO_PRINT){
             std::cout << "init::ZEROS at (" << this << ")" << std::endl;
@@ -671,11 +673,74 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
     return *output;
 }
 
+
+// Convolve operation (NaiveSSE - Using SSE instruction on Ho dimension)
+template<class T>
+Tensor<T>& Tensor<T>::convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
+    // Check for dimensions
+    assert(this->nChannels == kernel.nChannels);
+    // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
+
+    // Compute output dimensions
+    uint32_t Eo = this->nElements;
+    uint32_t Co = kernel.nElements;
+    uint32_t Ho = (this->height - kernel.height + 2*padding) / stride + 1;
+    uint32_t Wo = (this->width - kernel.width + 2*padding) / stride + 1;
+
+    // // Check if Ho is divider of 4
+    // assert((Ho % 4) == 0);
+
+    uint32_t Ci = this->nChannels;
+    uint32_t Hi = this->height;
+    uint32_t Wi = this->width;
+
+    uint32_t Hf = kernel.height;
+    uint32_t Wf = kernel.width;
+
+    // Create the output
+    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+
+    Chronometer c;
+    if constexpr (DO_TIME){
+        c.start();
+    }
+
+    // Convolution
+    for(auto p = 0; p < Eo; p++) {
+        for(auto j = 0; j < Co; j++) {
+            for(auto i = 0; i < Ci; i++) {
+                for(auto l = 0; l < Ho; l++) {
+                    for(auto n = 0; n < Hf; n++) {
+                        for(auto k = 0; k < Wo; k++) {
+                            for(auto m = 0; m < Wf; m++) {
+                                int32_t Hi_idx = l*stride+n-padding;
+                                int32_t Wi_idx = k*stride+m-padding;
+                                bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
+                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
+                                output->_at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if constexpr (DO_TIME){
+        c.stop();
+        // std::cout << c.getTime() << std::endl;
+        if(executionTime != nullptr) {
+            *executionTime = c.getTime();
+        }
+    }
+
+    return *output;
+}
+  
+
 // template <class T>
 // std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor)
 
 // Define the possible template types
-// template class Tensor<uint>;
-// template class Tensor<int>;
 template class Tensor<float>;
 template class Tensor<double>;

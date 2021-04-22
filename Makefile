@@ -1,9 +1,9 @@
 CXX 		= g++
 STD 		= c++17
 OPT 		= O3
-CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT}
+CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} 
 
-TARGETS 	= testTensor benchmark
+TARGETS 	= testTensor benchmark 
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -31,7 +31,7 @@ $(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
 # benchmark
 $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/benchmark_opt built successfully."
+	@echo "$(BIN_DIR)/benchmark built successfully."
 	
 
 # Compile src folder
