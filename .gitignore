@@ -1,4 +1,4 @@
 .vscode/
 ./bin/
 ./build/
-./DirectConvolution/
+./EfficientConvolution_VTune/
