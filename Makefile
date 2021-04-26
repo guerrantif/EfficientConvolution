@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4
 
-TARGETS 	= testTensor benchmark 
+TARGETS 	= testTensor benchmark benchmark_Ho
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -32,6 +32,11 @@ $(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
 $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo "$(BIN_DIR)/benchmark built successfully."
+
+# benchmark_Ho
+$(BIN_DIR)/benchmark_Ho: $(OBJECTS) $(BUILD_DIR)/benchmark_Ho.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo "$(BIN_DIR)/benchmark_Ho built successfully."
 	
 
 # Compile src folder

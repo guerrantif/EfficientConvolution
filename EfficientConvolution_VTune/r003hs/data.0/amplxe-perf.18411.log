@@ -1,0 +1,37 @@
+Using CPUID GenuineIntel-6-8E-C
+Compression enabled, disabling build id collection at the end of the session.
+path: /home/mirco/Scrivania/Università/Tesi/CodeBase/EfficientConvolution/EfficientConvolution_VTune/r003hs/data.0
+basename: 18403.perf
+nr_cblocks: 0
+affinity: SYS
+mmap flush: 1
+comp level: 1
+Problems creating module maps, continuing anyway...
+WARNING: Kernel address maps (/proc/{kallsyms,modules}) are restricted,
+check /proc/sys/kernel/kptr_restrict and /proc/sys/kernel/perf_event_paranoid.
+
+Samples in kernel functions may not be resolved if a suitable vmlinux
+file is not found in the buildid cache or in the vmlinux path.
+
+Samples in kernel modules won't be resolved at all.
+
+If some relocation was applied (e.g. kexec) symbols may be misresolved
+even with a suitable vmlinux or kallsyms file.
+
+mmap size 528384B
+thread 0 monitor: 0 allowed: 0
+thread 1 monitor: 1 allowed: 1
+thread 2 monitor: 2 allowed: 2
+thread 3 monitor: 3 allowed: 3
+thread 4 monitor: 4 allowed: 4
+thread 5 monitor: 5 allowed: 5
+thread 6 monitor: 6 allowed: 6
+thread 7 monitor: 7 allowed: 7
+Couldn't record kernel reference relocation symbol
+Symbol resolution may be skewed if relocation was used (e.g. kexec).
+Check /proc/kallsyms permission or run as root.
+cmd_pipe: /tmp/amplxe-tmp-mirco/perf-pipe-18393-15370134219094
+
+18412:perf-sync:ready:TSC=15370215482658
+[ perf record: Woken up 15 times to write data ]
+[ perf record: Captured and wrote 0,014 MB /home/mirco/Scrivania/Università/Tesi/CodeBase/EfficientConvolution/EfficientConvolution_VTune/r003hs/data.0, compressed (original 0,028 MB, ratio is 6,619) ]
