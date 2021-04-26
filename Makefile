@@ -1,7 +1,7 @@
 CXX 		= g++
 STD 		= c++17
 OPT 		= O3
-CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} 
+CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4
 
 TARGETS 	= testTensor benchmark 
 

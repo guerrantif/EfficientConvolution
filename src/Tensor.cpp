@@ -707,28 +707,73 @@ Tensor<T>& Tensor<T>::convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t s
         c.start();
     }
 
-    // Convolution
-    for(auto p = 0; p < Eo; p++) {
-        for(auto j = 0; j < Co; j++) {
-            for(auto i = 0; i < Ci; i++) {
-                for(auto l = 0; l < Ho; l++) {
-                    for(auto n = 0; n < Hf; n++) {
-                        for(auto k = 0; k < Wo; k+=4) {
-                            for(auto m = 0; m < Wf; m++) {
-                                int32_t Hi_idx = l*stride+n-padding;
-                                int32_t Wi_idx = k*stride+m-padding;
-                                bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
-                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
-                                // output->_at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
+    // Compute only the indexes for all the tensors
+    std::vector<int> outputIndexes;
+    std::vector<int> inputIndexes;
+    std::vector<int> kernelIndexes;
+    for(auto i = 0; i < Ci; i++) {
+        for(auto l = 0; l < Ho; l++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto k = 0; k < Wo; k++) {
+                    for(auto m = 0; m < Wf; m++) {
+                        int32_t Hi_idx = l*stride+n-padding;
+                        int32_t Wi_idx = k*stride+m-padding;
+                        outputIndexes.push_back((l * Wo) + (k));
+                        kernelIndexes.push_back((i * Hf * Wf) + (n * Wf) + (m));
+                        inputIndexes.push_back((i * Hi * Wi) + (Hi_idx * Wi) + (Wi_idx));
 
-                                // SSE instruction from  <xmmintrin.h>
-                                __m128 SSE_inputTensorValue = _mm_load1_ps(&inputTensorValue);
-                                __m128 SSE_kernel = _mm_load1_ps(&kernel.at(j, i, n, m));
-                                __m128 SSE_output = _mm_load_ps(&output->_at(p, j, l, k));
-                                SSE_output = _mm_add_ps(SSE_output, _mm_mul_ps(SSE_inputTensorValue, SSE_kernel));
-                                _mm_store_ps(&output->_at(p, j, l, k), SSE_output);
-                            }
-                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Convolution
+    for(auto l = 0; l < Ho; l++) {
+        for(auto n = 0; n < Hf; n++) {
+            for(auto m = 0; m < Wf; m++) {
+                for(auto i = 0; i < Ci; i++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        int32_t Hi_idx = l*stride+n-padding;
+                        int32_t Wi_idx = k*stride+m-padding;
+                        bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
+                        auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(i, Hi_idx, Wi_idx);
+                        output->_at(0, l, k) += inputTensorValue * kernel._at(i, n, m);
+
+                        // std::cout << "Hi: " << Hi_idx << " ";
+                        // std::cout << "Wi: " << Wi_idx << " ";
+                        // std::cout << "val: " << inputTensorValue << std::endl;
+
+                        // Print of data position
+                        // std::cout << "output: " << ((i * Hf * Wf) + (n * Wf) + (m)) << std::endl;
+
+                        // // SSE instruction from  <xmmintrin.h>
+                        // Fecth input tensor value
+                        // int32_t Hi_idx = l*stride+n-padding;
+                        // int32_t Wi_idx = k*stride+m-padding;
+                        // int32_t Wi_idx_0 = Wi_idx + 0;
+                        // int32_t Wi_idx_1 = Wi_idx + 1;
+                        // int32_t Wi_idx_2 = Wi_idx + 2;
+                        // int32_t Wi_idx_3 = Wi_idx + 3;
+                        // bool isPaddingPosition_0 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_0 < 0) || (Wi_idx_0 >= Wi));
+                        // T inputTensorValue_0 = (isPaddingPosition_0) ? T{} : (*this).at(i, Hi_idx, Wi_idx_0);
+                        // bool isPaddingPosition_1 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_1 < 0) || (Wi_idx_1 >= Wi));
+                        // T inputTensorValue_1 = (isPaddingPosition_1) ? T{} : (*this).at(i, Hi_idx, Wi_idx_1);
+                        // bool isPaddingPosition_2 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_2 < 0) || (Wi_idx_2 >= Wi));
+                        // T inputTensorValue_2 = (isPaddingPosition_2) ? T{} : (*this).at(i, Hi_idx, Wi_idx_2);
+                        // bool isPaddingPosition_3 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_3 < 0) || (Wi_idx_3 >= Wi)); 
+                        // T inputTensorValue_3 = (isPaddingPosition_3) ? T{} : (*this).at(i, Hi_idx, Wi_idx_3);
+                        // T inputTensorValues[] __attribute__ ((aligned(16))) {
+                        //     inputTensorValue_0, inputTensorValue_1, inputTensorValue_2, inputTensorValue_2
+                        // }; 
+                        // std::cout << inputTensorValue_0 << ", " << inputTensorValue_1 << ", " << inputTensorValue_2 << ", " << inputTensorValue_3 << std::endl;
+                        // std::cin >> isPaddingPosition_0;
+
+                        // __m128 SSE_inputTensorValue = _mm_load_ps(inputTensorValues);
+                        // __m128 SSE_kernel = _mm_load_ps(&kernel.at(i, n, m));
+                        // __m128 SSE_output = _mm_load_ps(&output->_at(0, l, k));
+                        // SSE_output = _mm_add_ps(SSE_output, _mm_mul_ps(SSE_inputTensorValue, SSE_kernel));
+                        // _mm_store_ps(&output->_at(0, l, k), SSE_output);
                     }
                 }
             }
