@@ -71,19 +71,19 @@ int main(int argc, char const *argv[]){
     Tensor<DType> kernel{Ef,Cf,Hf,Wf,tensor::init::RAND};
 
 
-    // /******************** Test Convolve Parallel Ho ***************************/
+    // /******************** Test Convolve Parallel Co ***************************/
     // WARM-UP
     for(auto i = 0; i < WARMUP_CYCLES; i++) {
-        auto output = image.convolveParallelHo(kernel, stride, padding, nThreads);
+        auto output = image.convolveParallelCo(kernel, stride, padding, nThreads);
     }
     // CONVOLUTION
     Statistics stat;
     for(auto i = 0; i < TEST_CYCLES; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveParallelHo(kernel, stride, padding, nThreads, &executionTime);
+        auto output = image.convolveParallelCo(kernel, stride, padding, nThreads, &executionTime);
         stat.addToCollection(executionTime);
     }
-    std::cout << "time Convolve_Ho (" << nThreads << " threads): " << stat.getMedian() << " ms\n";
+    std::cout << "time Convolve_Co (" << nThreads << " threads): " << stat.getMedian() << " ms\n";
 
     std::cout << "__________________________________________________________\n";
     /**************************************************************************/

@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4
 
-TARGETS 	= testTensor benchmark benchmark_Ho
+TARGETS 	= testTensor benchmark benchmark_Ho benchmark_Co benchmark_Eo
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -17,6 +17,10 @@ LDFLAGS		= -pthread
 SOURCES 	= $(shell find $(SRC_DIR) -name '*.cpp' | sort -k 1nr | cut -f2-)
 OBJECTS 	= $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
+# COLORS
+GREEN="\e[92m"
+RESET_COLOR="\e[0m"
+
 all: dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
 
 dirs:
@@ -26,17 +30,27 @@ dirs:
 # testTensor
 $(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/testTensor built successfully."
+	@echo ${GREEN} "$(BIN_DIR)/testTensor built successfully." ${RESET_COLOR}
 
 # benchmark
 $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/benchmark built successfully."
+	@echo ${GREEN} "$(BIN_DIR)/benchmark built successfully." ${RESET_COLOR}
 
 # benchmark_Ho
 $(BIN_DIR)/benchmark_Ho: $(OBJECTS) $(BUILD_DIR)/benchmark_Ho.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/benchmark_Ho built successfully."
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Ho built successfully." ${RESET_COLOR}
+
+# benchmark_Co
+$(BIN_DIR)/benchmark_Co: $(OBJECTS) $(BUILD_DIR)/benchmark_Co.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Co built successfully." ${RESET_COLOR} 
+
+# benchmark_Eo
+$(BIN_DIR)/benchmark_Eo: $(OBJECTS) $(BUILD_DIR)/benchmark_Eo.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Eo built successfully." ${RESET_COLOR} 
 	
 
 # Compile src folder
