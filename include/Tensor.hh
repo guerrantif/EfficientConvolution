@@ -19,7 +19,7 @@ namespace tensor{
 template <class T>
 class Tensor {
 private:
-    // Main class members
+     // Main class members
     T* data;
     uint32_t nElements;
     uint32_t nChannels;
@@ -66,6 +66,9 @@ public:
 
     // Convolution Naive
     Tensor<T>& convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
+
+    // Convolution Naive SSE
+    Tensor<T>& convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
 
 public:
     // Default constructor
