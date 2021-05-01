@@ -12,8 +12,7 @@
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
     assert(this->size != 0);
-    // this->data = new T[this->size];
-    assert(!posix_memalign((void**)&(this->data), 16, (this->size)*sizeof(T)));
+    this->data = new T[this->size];
     
     if(init == tensor::init::ZEROS){
         if constexpr (DO_PRINT){
@@ -615,7 +614,7 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
 }
 
 
-// Convolution operation (Naive)
+// Convolution operation (Naive), order 1
 template<class T>
 Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
     // Check for dimensions
@@ -654,7 +653,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
                                 int32_t Hi_idx = l*stride+n-padding;
                                 int32_t Wi_idx = k*stride+m-padding;
                                 bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
-                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
+                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this)._at(p, i, Hi_idx, Wi_idx);
                                 output->_at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
                             }
                         }
@@ -676,9 +675,9 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
 }
 
 
-// Convolve operation (NaiveSSE - Using SSE instruction on Wo dimension)
+// Convolve operation (Naive), order 2
 template<class T>
-Tensor<T>& Tensor<T>::convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
     // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
@@ -737,7 +736,7 @@ Tensor<T>& Tensor<T>::convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t s
                         int32_t Hi_idx = l*stride+n-padding;
                         int32_t Wi_idx = k*stride+m-padding;
                         bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
-                        auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(i, Hi_idx, Wi_idx);
+                        auto inputTensorValue = (isPaddingPosition) ? T{} : (*this)._at(i, Hi_idx, Wi_idx);
                         output->_at(0, l, k) += inputTensorValue * kernel._at(i, n, m);
 
                         // std::cout << "Hi: " << Hi_idx << " ";
@@ -756,13 +755,13 @@ Tensor<T>& Tensor<T>::convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t s
                         // int32_t Wi_idx_2 = Wi_idx + 2;
                         // int32_t Wi_idx_3 = Wi_idx + 3;
                         // bool isPaddingPosition_0 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_0 < 0) || (Wi_idx_0 >= Wi));
-                        // T inputTensorValue_0 = (isPaddingPosition_0) ? T{} : (*this).at(i, Hi_idx, Wi_idx_0);
+                        // T inputTensorValue_0 = (isPaddingPosition_0) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_0);
                         // bool isPaddingPosition_1 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_1 < 0) || (Wi_idx_1 >= Wi));
-                        // T inputTensorValue_1 = (isPaddingPosition_1) ? T{} : (*this).at(i, Hi_idx, Wi_idx_1);
+                        // T inputTensorValue_1 = (isPaddingPosition_1) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_1);
                         // bool isPaddingPosition_2 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_2 < 0) || (Wi_idx_2 >= Wi));
-                        // T inputTensorValue_2 = (isPaddingPosition_2) ? T{} : (*this).at(i, Hi_idx, Wi_idx_2);
+                        // T inputTensorValue_2 = (isPaddingPosition_2) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_2);
                         // bool isPaddingPosition_3 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_3 < 0) || (Wi_idx_3 >= Wi)); 
-                        // T inputTensorValue_3 = (isPaddingPosition_3) ? T{} : (*this).at(i, Hi_idx, Wi_idx_3);
+                        // T inputTensorValue_3 = (isPaddingPosition_3) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_3);
                         // T inputTensorValues[] __attribute__ ((aligned(16))) {
                         //     inputTensorValue_0, inputTensorValue_1, inputTensorValue_2, inputTensorValue_2
                         // }; 
@@ -770,7 +769,7 @@ Tensor<T>& Tensor<T>::convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t s
                         // std::cin >> isPaddingPosition_0;
 
                         // __m128 SSE_inputTensorValue = _mm_load_ps(inputTensorValues);
-                        // __m128 SSE_kernel = _mm_load_ps(&kernel.at(i, n, m));
+                        // __m128 SSE_kernel = _mm_load_ps(&kernel._at(i, n, m));
                         // __m128 SSE_output = _mm_load_ps(&output->_at(0, l, k));
                         // SSE_output = _mm_add_ps(SSE_output, _mm_mul_ps(SSE_inputTensorValue, SSE_kernel));
                         // _mm_store_ps(&output->_at(0, l, k), SSE_output);

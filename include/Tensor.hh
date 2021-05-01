@@ -64,11 +64,11 @@ public:
     // Convolution operator (parallel) - dimension: output nElements
     Tensor<T>& convolveParallelEo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
 
-    // Convolution Naive
+    // Convolution Naive, order 1
     Tensor<T>& convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
 
-    // Convolution Naive SSE
-    Tensor<T>& convolveNaiveSSE(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
+    // Convolution Naive, order 2
+    Tensor<T>& convolveNaive2(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
 
 public:
     // Default constructor
