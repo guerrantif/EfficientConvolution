@@ -8,11 +8,15 @@ int main(int argc, char const *argv[]){
 
     typedef float DType;
 
-    Tensor<DType> image{3,400, 400,tensor::init::INCR};
-    Tensor<DType> kernel{1,3,4,4,tensor::init::INCR};
+    Tensor<DType> image{500,500, 10,tensor::init::INCR}; // 
+    // std::cout << "image size: " << image.getSize() << std::endl;
+    // std::cout << "image height: " << image.getHeight() << std::endl;
+    // std::cout << "image width: " << image.getWidth() << std::endl;
+    // std::cout << "image nChannels: " << image.getNChannels() << std::endl;
+    Tensor<DType> kernel{1,5,5, 10,tensor::init::INCR};
 
     auto stride = 1;
-    auto padding = 1;
+    auto padding = 0;
     auto nThreads = 4;
 
     float time1 = 0.0;

@@ -64,24 +64,24 @@ Tensor<T>::Tensor(){
 // 3D constructor
 template <class T>
 Tensor<T>::Tensor(const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init)
-    : nElements{1}, nChannels{nChannels_}, height{height_}, width{width_}, valid{true}{
+    : nElements{1}, height{height_}, width{width_}, nChannels{nChannels_}, valid{true}{
     if constexpr (DO_PRINT){
         std::cout << "3D CONSTRUCTOR at (" << this << ")" << std::endl;
     }
     this->size = this->nElements * this->nChannels * this->height * this->width;
-    this->shape = {this->nElements, this->nChannels, this->height, this->width};
+    this->shape = {this->nElements, this->height, this->width, this->nChannels};
     this->init_data(init);
 }
 
 // 4D constructor
 template <class T>
 Tensor<T>::Tensor(const uint32_t& nElements_, const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init)
-    : nElements{nElements_}, nChannels{nChannels_}, height{height_}, width{width_}, valid{true}{
+    : nElements{nElements_}, height{height_}, width{width_}, nChannels{nChannels_}, valid{true}{
     if constexpr (DO_PRINT){
         std::cout << "4D CONSTRUCTOR at (" << this << ")" << std::endl;
     }
     this->size = this->nElements * this->nChannels * this->height * this->width;
-    this->shape = {this->nElements, this->nChannels, this->height, this->width};
+    this->shape = {this->nElements, this->height, this->width, this->nChannels};
     this->init_data(init);
 }
 
@@ -643,7 +643,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
     uint32_t Wf = kernel.width;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Eo, Ho, Wo, Co, tensor::init::ZEROS);
 
     Chronometer c;
     if constexpr (DO_TIME){
@@ -659,9 +659,8 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
                         for(auto n = 0; n < Hf; n++) {
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
-                            auto inputTensorValue = (*this)._at(i, Hi_idx, Wi_idx);
-                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, i, n, m);
-                            
+                            auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
+                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, n, m, i);
                         }
                     }
                 }
@@ -705,7 +704,7 @@ Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t str
     uint32_t Wf = kernel.width;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Eo, Ho, Wo, Co, tensor::init::ZEROS);
 
     Chronometer c;
     if constexpr (DO_TIME){
@@ -721,8 +720,8 @@ Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t str
                         for(auto j = 0; j < Co; j++) {
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
-                            auto inputTensorValue = (*this)._at(i, Hi_idx, Wi_idx);
-                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, i, n, m);  
+                            auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
+                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, n, m, i);  
                         }
                     }
                 }
