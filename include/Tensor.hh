@@ -22,9 +22,9 @@ private:
      // Main class members
     T* data;
     uint32_t nElements;
-    uint32_t nChannels;
     uint32_t height;
     uint32_t width;
+    uint32_t nChannels;
     // Secondary class members
     uint32_t size;
     std::vector<uint32_t> shape;
@@ -74,9 +74,9 @@ public:
     // Default constructor
     Tensor();
     // 3D constructor
-    Tensor(const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init);
+    Tensor(const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init);
     // 4D constructor
-    Tensor(const uint32_t& nElements_, const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init);
+    Tensor(const uint32_t& nElements_, const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init);
     // Copy constructor
     Tensor(const Tensor<T>& other);
     // Move constructor

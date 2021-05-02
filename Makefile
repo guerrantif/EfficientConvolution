@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4
 
-TARGETS 	= testForOrder benchmark_Ho benchmark_Co benchmark_Eo
+TARGETS 	= testForOrder testTensor
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -31,6 +31,11 @@ dirs:
 $(BIN_DIR)/testForOrder: $(OBJECTS) $(BUILD_DIR)/testForOrder.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo ${GREEN} "$(BIN_DIR)/testForOrder built successfully." ${RESET_COLOR}
+
+# testTensor
+$(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/testTensor built successfully." ${RESET_COLOR}
 
 # benchmark
 $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o

@@ -63,7 +63,7 @@ Tensor<T>::Tensor(){
 
 // 3D constructor
 template <class T>
-Tensor<T>::Tensor(const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init)
+Tensor<T>::Tensor(const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init)
     : nElements{1}, nChannels{nChannels_}, height{height_}, width{width_}, valid{true}{
     if constexpr (DO_PRINT){
         std::cout << "3D CONSTRUCTOR at (" << this << ")" << std::endl;
@@ -75,7 +75,7 @@ Tensor<T>::Tensor(const uint32_t& nChannels_, const uint32_t& height_, const uin
 
 // 4D constructor
 template <class T>
-Tensor<T>::Tensor(const uint32_t& nElements_, const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init)
+Tensor<T>::Tensor(const uint32_t& nElements_, const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init)
     : nElements{nElements_}, nChannels{nChannels_}, height{height_}, width{width_}, valid{true}{
     if constexpr (DO_PRINT){
         std::cout << "4D CONSTRUCTOR at (" << this << ")" << std::endl;

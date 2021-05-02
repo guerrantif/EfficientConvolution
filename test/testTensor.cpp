@@ -8,8 +8,8 @@ int main(int argc, char const *argv[]){
 
     typedef float DType;
 
-    Tensor<DType> image{1,4,4,tensor::init::INCR};
-    Tensor<DType> kernel{1,1,3,3,tensor::init::INCR};
+    Tensor<DType> image{3,400, 400,tensor::init::INCR};
+    Tensor<DType> kernel{1,3,4,4,tensor::init::INCR};
 
     auto stride = 1;
     auto padding = 1;
