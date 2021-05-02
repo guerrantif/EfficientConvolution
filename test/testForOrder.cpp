@@ -16,7 +16,7 @@ int main() {
     uint32_t Hf = 2;
     uint32_t Wf = 2;
     uint32_t Cf = Ci;
-    uint32_t Ef = 1;
+    uint32_t Ef = 2;
 
     // Output
     uint32_t Ho = ((Hi - Hf) / stride) + 1;
