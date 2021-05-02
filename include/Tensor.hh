@@ -22,9 +22,9 @@ private:
      // Main class members
     T* data;
     uint32_t nElements;
-    uint32_t nChannels;
     uint32_t height;
     uint32_t width;
+    uint32_t nChannels;
     // Secondary class members
     uint32_t size;
     std::vector<uint32_t> shape;
@@ -45,14 +45,14 @@ private:
     
     // ################# Private operators at() #################
     // 3D operator at() const
-    const T& _at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 3D operator at() non-const
-    T& _at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    const T& _at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 4D operator at() non-const
-    T& _at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
 public:
     // Convolution operator (parallel) - dimension: output height
@@ -74,9 +74,9 @@ public:
     // Default constructor
     Tensor();
     // 3D constructor
-    Tensor(const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init);
+    Tensor(const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init);
     // 4D constructor
-    Tensor(const uint32_t& nElements_, const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init);
+    Tensor(const uint32_t& nElements_, const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init);
     // Copy constructor
     Tensor(const Tensor<T>& other);
     // Move constructor
@@ -91,14 +91,14 @@ public:
     Tensor<T>& operator=(Tensor<T>&& other);
 
     // 3D operator at() const
-    const T& at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 3D operator at() non-const
-    T& at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    const T& at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 4D operator at() non-const
-    T& at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // Operator[] const
     const T& operator[](const int32_t& idx) const;
