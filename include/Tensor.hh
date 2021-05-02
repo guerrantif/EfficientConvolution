@@ -45,14 +45,14 @@ private:
     
     // ################# Private operators at() #################
     // 3D operator at() const
-    const T& _at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 3D operator at() non-const
-    T& _at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    const T& _at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 4D operator at() non-const
-    T& _at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
 public:
     // Convolution operator (parallel) - dimension: output height
@@ -91,14 +91,14 @@ public:
     Tensor<T>& operator=(Tensor<T>&& other);
 
     // 3D operator at() const
-    const T& at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 3D operator at() non-const
-    T& at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    const T& at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const;
+    const T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 4D operator at() non-const
-    T& at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx);
+    T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // Operator[] const
     const T& operator[](const int32_t& idx) const;

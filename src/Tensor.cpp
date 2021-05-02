@@ -173,69 +173,77 @@ Tensor<T>& Tensor<T>::operator=(Tensor<T>&& other){
 // ################# Private operators at() #################
 // 3D operator at() const
 template <class T>
-const T& Tensor<T>::_at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
-    return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+const T& Tensor<T>::_at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
+    // return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 3D operator at() non-const
 template <class T>
-T& Tensor<T>::_at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
-    return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+T& Tensor<T>::_at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
+    // return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
-    return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+const T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
+    // return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
-    return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
+    // return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // ################# Public operators at() #################
 // 3D operator at() const
 template <class T>
-const T& Tensor<T>::at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
+const T& Tensor<T>::at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 3D operator at() non-const
 template <class T>
-T& Tensor<T>::at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
+T& Tensor<T>::at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
+const T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
+T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // Operator[] const
@@ -614,7 +622,7 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
 }
 
 
-// Convolution operation (Naive), order 1
+// Convolution operation (Naive), order 1 (Algorithm 1)
 template<class T>
 Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
     // Check for dimensions
@@ -642,20 +650,18 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
         c.start();
     }
 
-    // Convolution
-    for(auto p = 0; p < Eo; p++) {
+    // Convolution (Algorithm 1)
+    for(auto i = 0; i < Ci; i++) {
         for(auto j = 0; j < Co; j++) {
-            for(auto i = 0; i < Ci; i++) {
+            for(auto k = 0; k < Wo; k++) {
                 for(auto l = 0; l < Ho; l++) {
-                    for(auto n = 0; n < Hf; n++) {
-                        for(auto k = 0; k < Wo; k++) {
-                            for(auto m = 0; m < Wf; m++) {
-                                int32_t Hi_idx = l*stride+n-padding;
-                                int32_t Wi_idx = k*stride+m-padding;
-                                bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
-                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this)._at(p, i, Hi_idx, Wi_idx);
-                                output->_at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
-                            }
+                    for(auto m = 0; m < Wf; m++) {
+                        for(auto n = 0; n < Hf; n++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            auto inputTensorValue = (*this)._at(i, Hi_idx, Wi_idx);
+                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, i, n, m);
+                            
                         }
                     }
                 }
@@ -675,7 +681,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
 }
 
 
-// Convolve operation (Naive), order 2
+// Convolve operation (Naive), order 2 (Algorithm 2)
 template<class T>
 Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
     // Check for dimensions
@@ -706,73 +712,18 @@ Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t str
         c.start();
     }
 
-    // Compute only the indexes for all the tensors
-    std::vector<int> outputIndexes;
-    std::vector<int> inputIndexes;
-    std::vector<int> kernelIndexes;
-    for(auto i = 0; i < Ci; i++) {
-        for(auto l = 0; l < Ho; l++) {
-            for(auto n = 0; n < Hf; n++) {
-                for(auto k = 0; k < Wo; k++) {
-                    for(auto m = 0; m < Wf; m++) {
-                        int32_t Hi_idx = l*stride+n-padding;
-                        int32_t Wi_idx = k*stride+m-padding;
-                        outputIndexes.push_back((l * Wo) + (k));
-                        kernelIndexes.push_back((i * Hf * Wf) + (n * Wf) + (m));
-                        inputIndexes.push_back((i * Hi * Wi) + (Hi_idx * Wi) + (Wi_idx));
-
-                    }
-                }
-            }
-        }
-    }
-
-    // Convolution
+    // Convolution (Algorithm 2)
     for(auto l = 0; l < Ho; l++) {
         for(auto n = 0; n < Hf; n++) {
             for(auto m = 0; m < Wf; m++) {
                 for(auto i = 0; i < Ci; i++) {
                     for(auto k = 0; k < Wo; k++) {
-                        int32_t Hi_idx = l*stride+n-padding;
-                        int32_t Wi_idx = k*stride+m-padding;
-                        bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
-                        auto inputTensorValue = (isPaddingPosition) ? T{} : (*this)._at(i, Hi_idx, Wi_idx);
-                        output->_at(0, l, k) += inputTensorValue * kernel._at(i, n, m);
-
-                        // std::cout << "Hi: " << Hi_idx << " ";
-                        // std::cout << "Wi: " << Wi_idx << " ";
-                        // std::cout << "val: " << inputTensorValue << std::endl;
-
-                        // Print of data position
-                        // std::cout << "output: " << ((i * Hf * Wf) + (n * Wf) + (m)) << std::endl;
-
-                        // // SSE instruction from  <xmmintrin.h>
-                        // Fecth input tensor value
-                        // int32_t Hi_idx = l*stride+n-padding;
-                        // int32_t Wi_idx = k*stride+m-padding;
-                        // int32_t Wi_idx_0 = Wi_idx + 0;
-                        // int32_t Wi_idx_1 = Wi_idx + 1;
-                        // int32_t Wi_idx_2 = Wi_idx + 2;
-                        // int32_t Wi_idx_3 = Wi_idx + 3;
-                        // bool isPaddingPosition_0 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_0 < 0) || (Wi_idx_0 >= Wi));
-                        // T inputTensorValue_0 = (isPaddingPosition_0) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_0);
-                        // bool isPaddingPosition_1 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_1 < 0) || (Wi_idx_1 >= Wi));
-                        // T inputTensorValue_1 = (isPaddingPosition_1) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_1);
-                        // bool isPaddingPosition_2 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_2 < 0) || (Wi_idx_2 >= Wi));
-                        // T inputTensorValue_2 = (isPaddingPosition_2) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_2);
-                        // bool isPaddingPosition_3 = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx_3 < 0) || (Wi_idx_3 >= Wi)); 
-                        // T inputTensorValue_3 = (isPaddingPosition_3) ? T{} : (*this)._at(i, Hi_idx, Wi_idx_3);
-                        // T inputTensorValues[] __attribute__ ((aligned(16))) {
-                        //     inputTensorValue_0, inputTensorValue_1, inputTensorValue_2, inputTensorValue_2
-                        // }; 
-                        // std::cout << inputTensorValue_0 << ", " << inputTensorValue_1 << ", " << inputTensorValue_2 << ", " << inputTensorValue_3 << std::endl;
-                        // std::cin >> isPaddingPosition_0;
-
-                        // __m128 SSE_inputTensorValue = _mm_load_ps(inputTensorValues);
-                        // __m128 SSE_kernel = _mm_load_ps(&kernel._at(i, n, m));
-                        // __m128 SSE_output = _mm_load_ps(&output->_at(0, l, k));
-                        // SSE_output = _mm_add_ps(SSE_output, _mm_mul_ps(SSE_inputTensorValue, SSE_kernel));
-                        // _mm_store_ps(&output->_at(0, l, k), SSE_output);
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            auto inputTensorValue = (*this)._at(i, Hi_idx, Wi_idx);
+                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, i, n, m);  
+                        }
                     }
                 }
             }
