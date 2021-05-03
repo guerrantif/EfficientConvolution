@@ -12,7 +12,12 @@ Kernel<T>::Kernel(const uint32_t& height_, const uint32_t& width_, const uint32_
 // 4D constructor
 template <class T>
 Kernel<T>::Kernel(const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const uint32_t& nElements_, const tensor::init& init)
-    : Tensor<T>(nElements_, height_, width_, nChannels_, init) {}
+    : Tensor<T>(nElements_, height_, width_, nChannels_, init) {
+        std::cout << "nElements: " << this->nElements << std::endl;
+        std::cout << "nChannels: " << this->nChannels << std::endl;
+        std::cout << "height: " << this->height << std::endl;
+        std::cout << "width: " << this->width << std::endl;
+    }
 
 // Copy constructor
 template <class T>

@@ -7,6 +7,7 @@
 constexpr bool DO_PRINT = false;
 constexpr bool DO_TIME = true;
 
+
 namespace tensor{
     enum class init{
         ONES,
@@ -50,9 +51,9 @@ protected:
     T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    const T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
+    virtual const T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
     // 4D operator at() non-const
-    T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
+    virtual T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
 public:
     // Convolution operator (parallel) - dimension: output height

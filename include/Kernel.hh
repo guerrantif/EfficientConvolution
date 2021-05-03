@@ -33,6 +33,7 @@ public:
     // 4D operator at() non-const
     virtual T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& E_idx, const uint32_t& C_idx);
 
+
 };
 
 #endif
