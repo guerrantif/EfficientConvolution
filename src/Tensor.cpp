@@ -117,10 +117,17 @@ Tensor<T>::Tensor(Tensor<T>&& other)
 template <class T>
 Tensor<T>::~Tensor() {
     if constexpr (DO_PRINT){
-        std::cout << "DESTRUCTOR at (" << this << ")" << std::endl;
+        std::cout << "DESTRUCTOR at (" << this << ") ";
     }
     if(this->data != nullptr){
         delete[] this->data;
+        if constexpr (DO_PRINT) {
+            std::cout << "- Data deallocation" << std::endl;
+        }
+    } else {
+        if constexpr (DO_PRINT) {
+            std::cout << "- Data was already deallocated before" << std::endl;
+        }
     }
 }
 

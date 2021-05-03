@@ -18,7 +18,7 @@ namespace tensor{
 
 template <class T>
 class Tensor {
-private:
+protected:
      // Main class members
     T* data;
     uint32_t nElements;
@@ -83,7 +83,7 @@ public:
     Tensor(Tensor<T>&& other);
 
     // Destructor
-    ~Tensor();
+    virtual ~Tensor();
 
     // Copy operator
     Tensor<T>& operator=(const Tensor<T>& other);

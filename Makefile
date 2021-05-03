@@ -1,4 +1,4 @@
-CXX 		= icpc
+CXX 		= g++
 STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4
