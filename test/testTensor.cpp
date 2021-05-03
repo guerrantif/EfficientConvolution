@@ -3,6 +3,7 @@
 
 #include "Tensor.hh"
 #include "Kernel.hh"
+#include "Statistics.h"
 
 
 int main(int argc, char const *argv[]){
@@ -31,10 +32,8 @@ int main(int argc, char const *argv[]){
     // }
 
 
-    Tensor<DType> image{500,500, 10,tensor::init::INCR};    // H, W, C
-    Kernel<DType> kernel{3, 3, 10, 2,tensor::init::INCR};   // H, W, C, E
-
-    std::cout << kernel.getNChannels() << " | " << image.getNChannels() << std::endl;
+    Tensor<DType> image{200,200, 3,tensor::init::INCR};  // H, W, C
+    Kernel<DType> kernel{5, 5, 3, 32,tensor::init::INCR};   // H, W, C, E
 
     auto stride = 1;
     auto padding = 0;
@@ -44,7 +43,23 @@ int main(int argc, char const *argv[]){
     float time2 = 0.0;
 
     Tensor<DType> output1 = image.convolveNaive(kernel, stride, padding, &time1);
-    // Tensor<DType> output2 = image.convolveNaive2(kernel, stride, padding, &time2);
+    Tensor<DType> output2 = image.convolveNaive2(kernel, stride, padding, &time2);
+
+    {
+        // WARM-UP
+        for(auto i = 0; i < 10; i++) {
+            auto output = image.convolveNaive2(kernel, stride, padding);
+        }
+        // CONVOLUTION
+        Statistics stat;
+        for(auto i = 0; i < 10; i++) {
+            float executionTime = 0.0;
+            auto output = image.convolveNaive2(kernel, stride, padding, &executionTime);
+            stat.addToCollection(executionTime);
+        }
+        std::cout << "time Naive: " << stat.getMedian() << " ms\n";
+    }
+    std::cout << "__________________________________________________________\n";
 
     std::cout << "Time 1: " << time1 << std::endl;
     std::cout << "Time 2: " << time2 << std::endl;

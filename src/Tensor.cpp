@@ -668,7 +668,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
                             auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
-                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, n, m, i);
+                            output->_at(l, k, j) += inputTensorValue * kernel._at(n, m, j, i);
                         }
                     }
                 }
@@ -729,7 +729,7 @@ Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t str
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
                             auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
-                            output->_at(l, k, j) += inputTensorValue * kernel._at(j, n, m, i);  
+                            output->_at(l, k, j) += inputTensorValue * kernel._at(n, m, j, i);  
                         }
                     }
                 }
