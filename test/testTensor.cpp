@@ -9,20 +9,26 @@ int main(int argc, char const *argv[]){
 
     typedef float DType;
 
-    Kernel<DType> kernel1{12, 3, 3, 3, tensor::init::INCR};
-    std::cout << "kernel size: " << kernel1.getSize() << std::endl;
-    std::cout << "kernel nElements: " << kernel1.getNElements() << std::endl;
-    std::cout << "kernel height: " << kernel1.getHeight() << std::endl;
-    std::cout << "kernel width: " << kernel1.getWidth() << std::endl;
-    std::cout << "kernel nChannels: " << kernel1.getNChannels() << std::endl;
-
-    auto kernel2{std::move(kernel1)};
-    std::cout << "----------------\n";
-    std::cout << "kernel size: " << kernel2.getSize() << std::endl;
-    std::cout << "kernel nElements: " << kernel2.getNElements() << std::endl;
-    std::cout << "kernel height: " << kernel2.getHeight() << std::endl;
-    std::cout << "kernel width: " << kernel2.getWidth() << std::endl;
-    std::cout << "kernel nChannels: " << kernel2.getNChannels() << std::endl;
+    uint32_t nElements = 1;
+    uint32_t height = 3;
+    uint32_t width = 2;
+    uint32_t nChannels = 4;
+    Kernel<DType> kernel1{height, width, nChannels, nElements, tensor::init::INCR};
+    std::cout << "kernel1 size: " << kernel1.getSize() << std::endl;
+    std::cout << "kernel1 nElements: " << kernel1.getNElements() << std::endl;
+    std::cout << "kernel1 height: " << kernel1.getHeight() << std::endl;
+    std::cout << "kernel1 width: " << kernel1.getWidth() << std::endl;
+    std::cout << "kernel1 nChannels: " << kernel1.getNChannels() << std::endl;
+    for(auto n = 0; n < height; n++) {
+        for(auto m = 0; m < width; m++) {
+            for(auto j = 0; j < nElements; j++) {
+                for(auto i = 0; i < nChannels; i++) {
+                    std::cout << n << ", " << m << ", " << j << ", " << i << ": ";
+                    std::cout << kernel1.at(n, m, j, i) << std::endl;
+                }
+            }
+        }
+    }
 
 
     // Tensor<DType> image{500,500, 10,tensor::init::INCR}; // 
