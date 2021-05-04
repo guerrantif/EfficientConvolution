@@ -31,14 +31,14 @@ Kernel<T>::~Kernel() {}
 // 4D operator at() const
 template <class T>
 const T& Kernel<T>::_at(const uint32_t H_idx, const uint32_t W_idx, const uint32_t E_idx, const uint32_t C_idx) const  {
-    std::cout << "KERNEL\n";
+    // std::cout << "KERNEL\n";
     return this->data[(H_idx * this->width * this->nElements * this->nChannels) + (W_idx * this->nElements * this->nChannels) + (E_idx * this->nChannels) + (C_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
 T& Kernel<T>::_at(const uint32_t H_idx, const uint32_t W_idx, const uint32_t E_idx, const uint32_t C_idx) {
-    std::cout << "KERNEL\n";
+    // std::cout << "KERNEL\n";
     return this->data[(H_idx * this->width * this->nElements * this->nChannels) + (W_idx * this->nElements * this->nChannels) + (E_idx * this->nChannels) + (C_idx)];
 }
 
@@ -50,7 +50,7 @@ const T& Kernel<T>::at(const uint32_t H_idx, const uint32_t W_idx, const uint32_
     assert(W_idx >= 0 && W_idx < this->width);
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
-    std::cout << "KERNEL\n";
+    // std::cout << "KERNEL\n";
     return this->data[(H_idx * this->width * this->nElements * this->nChannels) + (W_idx * this->nElements * this->nChannels) + (E_idx * this->nChannels) + (C_idx)];
 }
 
@@ -61,7 +61,7 @@ T& Kernel<T>::at(const uint32_t H_idx, const uint32_t W_idx, const uint32_t E_id
     assert(W_idx >= 0 && W_idx < this->width);
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
-    std::cout << "KERNEL\n";
+    // std::cout << "KERNEL\n";
     return this->data[(H_idx * this->width * this->nElements * this->nChannels) + (W_idx * this->nElements * this->nChannels) + (E_idx * this->nChannels) + (C_idx)];
 }
 

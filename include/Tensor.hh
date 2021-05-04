@@ -158,16 +158,5 @@ public:
     bool isValid() const;
 };
 
-template <class T>
-std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
-    auto data = tensor.getData();
-    auto size = tensor.getSize();
-
-    for(auto i = 0; i < size; i++){
-        os << data[i] << ", ";
-    }
-    return os;
-}
-
 
 #endif
