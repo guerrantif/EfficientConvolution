@@ -195,15 +195,17 @@ T& Tensor<T>::_at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
+const T& Tensor<T>::_at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const {
     // return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    std::cout << "TENSOR\n";
     return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
+T& Tensor<T>::_at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) {
     // return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    std::cout << "TENSOR\n";
     return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
@@ -232,25 +234,27 @@ T& Tensor<T>::at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
+const T& Tensor<T>::at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
     // auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
     // return this->data[idx];
+    std::cout << "TENSOR\n";
     return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
+T& Tensor<T>::at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
     // auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
     // return this->data[idx];
+    std::cout << "TENSOR\n";
     return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
@@ -693,7 +697,6 @@ template<class T>
 Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel.nChannels);
-    // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
 
     // Compute output dimensions
     uint32_t Eo = this->nElements;

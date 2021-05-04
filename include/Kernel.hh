@@ -10,9 +10,9 @@ class Kernel : public Tensor<T>{
 protected:
     // ################# Private operators at() #################
     // 4D operator at() const
-    virtual const T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& E_idx, const uint32_t& C_idx) const;
+    virtual const T& _at(const uint32_t H_idx, const uint32_t W_idx, const uint32_t E_idx, const uint32_t C_idx) const;
     // 4D operator at() non-const
-    virtual T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& E_idx, const uint32_t& C_idx);
+    virtual T& _at(const uint32_t H_idx, const uint32_t W_idx, const uint32_t E_idx, const uint32_t C_idx);
 public:
     // Default constructor
     Kernel();
@@ -29,9 +29,9 @@ public:
     virtual ~Kernel();
 
     // 4D operator at() const
-    virtual const T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& E_idx, const uint32_t& C_idx) const;
+    virtual const T& at(const uint32_t H_idx, const uint32_t W_idx, const uint32_t E_idx, const uint32_t C_idx) const;
     // 4D operator at() non-const
-    virtual T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& E_idx, const uint32_t& C_idx);
+    virtual T& at(const uint32_t H_idx, const uint32_t W_idx, const uint32_t E_idx, const uint32_t C_idx);
 
 
 };

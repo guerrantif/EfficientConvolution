@@ -51,9 +51,9 @@ protected:
     T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    virtual const T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
+    virtual const T& _at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const;
     // 4D operator at() non-const
-    virtual T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
+    virtual T& _at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx);
 
 public:
     // Convolution operator (parallel) - dimension: output height
@@ -97,9 +97,9 @@ public:
     T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    virtual const T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
+    virtual const T& at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const;
     // 4D operator at() non-const
-    virtual T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
+    virtual T& at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx);
 
     // Operator[] const
     const T& operator[](const int32_t& idx) const;
