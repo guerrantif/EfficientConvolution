@@ -1,9 +1,9 @@
-CXX 		= icpc
+CXX 		= g++
 STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4
 
-TARGETS 	= testForOrder testTensor
+TARGETS 	= benchmark_Naive2
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -32,10 +32,10 @@ $(BIN_DIR)/testForOrder: $(OBJECTS) $(BUILD_DIR)/testForOrder.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo ${GREEN} "$(BIN_DIR)/testForOrder built successfully." ${RESET_COLOR}
 
-# testTensor
-$(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
+# benchmark_Naive2
+$(BIN_DIR)/benchmark_Naive2: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive2.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo ${GREEN} "$(BIN_DIR)/testTensor built successfully." ${RESET_COLOR}
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive2 built successfully." ${RESET_COLOR}
 
 # benchmark
 $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o

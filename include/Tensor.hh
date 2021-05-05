@@ -7,6 +7,7 @@
 constexpr bool DO_PRINT = false;
 constexpr bool DO_TIME = true;
 
+
 namespace tensor{
     enum class init{
         ONES,
@@ -18,7 +19,7 @@ namespace tensor{
 
 template <class T>
 class Tensor {
-private:
+protected:
      // Main class members
     T* data;
     uint32_t nElements;
@@ -50,9 +51,9 @@ private:
     T& _at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    const T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
+    virtual const T& _at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const;
     // 4D operator at() non-const
-    T& _at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
+    virtual T& _at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx);
 
 public:
     // Convolution operator (parallel) - dimension: output height
@@ -83,7 +84,7 @@ public:
     Tensor(Tensor<T>&& other);
 
     // Destructor
-    ~Tensor();
+    virtual ~Tensor();
 
     // Copy operator
     Tensor<T>& operator=(const Tensor<T>& other);
@@ -96,9 +97,9 @@ public:
     T& at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
 
     // 4D operator at() const
-    const T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const;
+    virtual const T& at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const;
     // 4D operator at() non-const
-    T& at(const uint32_t& E_idx, const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx);
+    virtual T& at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx);
 
     // Operator[] const
     const T& operator[](const int32_t& idx) const;
@@ -156,17 +157,6 @@ public:
     // Check validity
     bool isValid() const;
 };
-
-template <class T>
-std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
-    auto data = tensor.getData();
-    auto size = tensor.getSize();
-
-    for(auto i = 0; i < size; i++){
-        os << data[i] << ", ";
-    }
-    return os;
-}
 
 
 #endif
