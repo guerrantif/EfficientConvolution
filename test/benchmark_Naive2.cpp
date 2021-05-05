@@ -20,8 +20,8 @@ int main(int argc, char const *argv[]){
     constexpr uint32_t Cf = Ci;
     constexpr uint32_t Ef = 32;
 
-    Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};  // H, W, C
-    Kernel<DType> kernel{Hf, Wf, Cf, Ef,tensor::init::INCR};   // H, W, C, E
+    Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};         // H, W, C
+    Kernel<DType> kernel{Hf, Wf, Cf, Ef,tensor::init::INCR};    // H, W, C, E
 
     // Convolution paramters
     auto stride = 1;
