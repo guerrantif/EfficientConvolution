@@ -21,7 +21,11 @@ int main(int argc, char const *argv[]){
     constexpr uint32_t Ef = 32;
 
     Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};         // H, W, C
-    Kernel<DType> kernel{Hf, Wf, Cf, Ef,tensor::init::INCR};    // H, W, C, E
+    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::INCR};    // H, W, E, C
+
+    // Print info
+    std::cout << "input: " << "Hi: " << Hi << ", Wi: " << Wi << ", Ci: " << Ci << std::endl;
+    std::cout << "kernel: " << "Hf: " << Hf << ", Wf: " << Wf << ", Ef: " << Ef << ", Cf: " << Cf << std::endl;
 
     // Convolution paramters
     auto stride = 1;
@@ -35,7 +39,7 @@ int main(int argc, char const *argv[]){
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveNaive2(kernel, stride, padding, &executionTime);
+        auto output = image.convolveNaive(kernel, stride, padding, &executionTime);
         stat.addToCollection(executionTime);
     }
     std::cout << "Execution time: " << stat.getMedian() << " ms\n";
