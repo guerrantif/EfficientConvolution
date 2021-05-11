@@ -7,13 +7,14 @@
 #include <xmmintrin.h>
 
 #include "Tensor.hh"
+#include "Kernel.hh"
 #include "Chronometer.hh"
 
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
     assert(this->size != 0);
     this->data = new T[this->size];
-    // posix_memalign((void**)&(this->data), 16, size*sizeof(T));
+    auto check = posix_memalign((void**)&(this->data), 16, size*sizeof(T));
     
     if(init == tensor::init::ZEROS){
         if constexpr (DO_PRINT){
@@ -260,15 +261,13 @@ T& Tensor<T>::at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_id
 
 // Operator[] const
 template <class T>
-const T& Tensor<T>::operator[](const int32_t& idx) const {
-    assert(idx >= 0 && idx < this->size);
+const T& Tensor<T>::operator[](const int32_t idx) const {
     return this->data[idx];
 }
 
 // Operator[] non-const
 template <class T>
-T& Tensor<T>::operator[](const int32_t& idx) {
-    assert(idx >= 0 && idx < this->size);
+T& Tensor<T>::operator[](const int32_t idx) {
     return this->data[idx];
 }
 
@@ -524,7 +523,7 @@ Tensor<T>& Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const uint32_t
     uint32_t Wo = (Wi - Wf + 2*padding) / stride + 1;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
     // Create pool of threads
     std::vector<std::thread> threads;
@@ -591,7 +590,7 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
     uint32_t Wo = (Wi - Wf + 2*padding) / stride + 1;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
     // Create pool of threads
     std::vector<std::thread> threads;
@@ -655,7 +654,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
     uint32_t Wf = kernel.width;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Ho, Wo, Co, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
     Chronometer c;
     if constexpr (DO_TIME){
@@ -671,8 +670,21 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
                         for(auto n = 0; n < Hf; n++) {
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
-                            auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
-                            output->_at(l, k, j) += inputTensorValue * kernel._at(n, m, j, i);  
+
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel.width * kernel.nElements * kernel.nChannels) + (m * kernel.nElements * kernel.nChannels) + (j * kernel.nChannels) + i;
+
+
+                            /*NEW*/
+                            (*output)[outputIndex] += (*this)[inputIndex] * kernel[kernelIndex];
+
+                            
+
+                            /*OLD*/
+                            // auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
+                            // output->_at(l, k, j) += inputTensorValue * kernel._at(n, m, j, i);  
                         }
                     }
                 }
@@ -694,15 +706,15 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
 
 // Convolve operation (Naive), order 2 (Algorithm 2)
 template<class T>
-Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveNaive2(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
     // Check for dimensions
-    assert(this->nChannels == kernel.nChannels);
+    assert(this->nChannels == kernel->nChannels);
 
     // Compute output dimensions
     uint32_t Eo = this->nElements;
-    uint32_t Co = kernel.nElements;
-    uint32_t Ho = (this->height - kernel.height + 2*padding) / stride + 1;
-    uint32_t Wo = (this->width - kernel.width + 2*padding) / stride + 1;
+    uint32_t Co = kernel->nElements;
+    uint32_t Ho = (this->height - kernel->height + 2*padding) / stride + 1;
+    uint32_t Wo = (this->width - kernel->width + 2*padding) / stride + 1;
 
     // // Check if Ho is divider of 4
     // assert((Ho % 4) == 0);
@@ -711,11 +723,11 @@ Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t str
     uint32_t Hi = this->height;
     uint32_t Wi = this->width;
 
-    uint32_t Hf = kernel.height;
-    uint32_t Wf = kernel.width;
+    uint32_t Hf = kernel->height;
+    uint32_t Wf = kernel->width;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Ho, Wo, Co, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
     Chronometer c;
     if constexpr (DO_TIME){
@@ -731,8 +743,19 @@ Tensor<T>& Tensor<T>::convolveNaive2(const Tensor<T>& kernel, const uint32_t str
                         for(auto j = 0; j < Co; j++) {
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
-                            auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
-                            output->_at(l, k, j) += inputTensorValue * kernel._at(n, m, j, i);  
+
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+
+
+                            /*NEW*/
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+
+                            /*OLD*/
+                            // auto inputTensorValue = (*this)._at(Hi_idx, Wi_idx, i);
+                            // output->_at(l, k, j) += inputTensorValue * kernel._at(n, m, j, i);  
                         }
                     }
                 }

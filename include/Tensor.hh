@@ -4,9 +4,13 @@
 #include <vector>
 #include <iostream>
 
+
+// Forward declaration of Kernel
+template <class T> 
+class Kernel;
+
 constexpr bool DO_PRINT = false;
 constexpr bool DO_TIME = true;
-
 
 namespace tensor{
     enum class init{
@@ -69,7 +73,7 @@ public:
     Tensor<T>& convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
 
     // Convolution Naive, order 2
-    Tensor<T>& convolveNaive2(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
+    Tensor<T>& convolveNaive2(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, float* executionTime =nullptr) const;
 
 public:
     // Default constructor
@@ -102,9 +106,9 @@ public:
     virtual T& at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx);
 
     // Operator[] const
-    const T& operator[](const int32_t& idx) const;
+    const T& operator[](const int32_t idx) const;
     // Operator[] non-const
-    T& operator[](const int32_t& idx);
+    T& operator[](const int32_t idx);
 
     // Operator* overloading
     Tensor<T> operator*(const T& value);
