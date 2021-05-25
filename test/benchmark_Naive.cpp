@@ -11,8 +11,8 @@ int main(int argc, char const *argv[]){
     typedef float DType;
 
     // Input dimensions
-    constexpr uint32_t Hi = 400;
-    constexpr uint32_t Wi = 400;
+    constexpr uint32_t Hi = 600;
+    constexpr uint32_t Wi = 600;
     constexpr uint32_t Ci = 3;
     // Kernel dimensions
     constexpr uint32_t Hf = 5;
@@ -29,14 +29,13 @@ int main(int argc, char const *argv[]){
 
     // Test parameters
     constexpr uint32_t N_TESTS = 50;
-    constexpr uint32_t ORDER_NUMBER = 2;
+    constexpr uint32_t ORDER_NUMBER = 1;
 
     // Print info
     std::cout << "input: " << "Hi: " << Hi << ", Wi: " << Wi << ", Ci: " << Ci << std::endl;
     std::cout << "kernel: " << "Hf: " << Hf << ", Wf: " << Wf << ", Ef: " << Ef << ", Cf: " << Cf << std::endl;
     std::cout << "N. test: " << N_TESTS << std::endl;
     std::cout << "Order number: " << ORDER_NUMBER << std::endl;
-
 
     {
     // CONVOLUTION

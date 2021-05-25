@@ -29,7 +29,7 @@ int main(int argc, char const *argv[]){
 
     // Test parameters
     constexpr uint32_t N_TESTS = 50;
-    constexpr uint32_t ORDER_NUMBER = 2;
+    constexpr uint32_t ORDER_NUMBER = 7;
 
     // Print info
     std::cout << "input: " << "Hi: " << Hi << ", Wi: " << Wi << ", Ci: " << Ci << std::endl;
