@@ -1,9 +1,9 @@
 CXX 		= g++
 STD 		= c++17
 OPT 		= O3
-CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native
+CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= benchmark_Naive
+TARGETS 	= benchmark_Naive8
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -37,25 +37,46 @@ $(BIN_DIR)/benchmark_Naive: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive built successfully." ${RESET_COLOR}
 
+# benchmark_Naive2
+$(BIN_DIR)/benchmark_Naive2: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive2.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive2 built successfully." ${RESET_COLOR}
+
+# benchmark_Naive3
+$(BIN_DIR)/benchmark_Naive3: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive3.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive3 built successfully." ${RESET_COLOR}
+
+# benchmark_Naive4
+$(BIN_DIR)/benchmark_Naive4: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive4.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive4 built successfully." ${RESET_COLOR}
+
+# benchmark_Naive5
+$(BIN_DIR)/benchmark_Naive5: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive5.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive5 built successfully." ${RESET_COLOR}
+
+# benchmark_Naive6
+$(BIN_DIR)/benchmark_Naive6: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive6.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive6 built successfully." ${RESET_COLOR}
+
+# benchmark_Naive7
+$(BIN_DIR)/benchmark_Naive7: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive7.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive7 built successfully." ${RESET_COLOR}
+
+# benchmark_Naive8
+$(BIN_DIR)/benchmark_Naive8: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive8.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive8 built successfully." ${RESET_COLOR}
+
+
 # benchmark
 $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo ${GREEN} "$(BIN_DIR)/benchmark built successfully." ${RESET_COLOR}
-
-# benchmark_Ho
-$(BIN_DIR)/benchmark_Ho: $(OBJECTS) $(BUILD_DIR)/benchmark_Ho.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo ${GREEN} "$(BIN_DIR)/benchmark_Ho built successfully." ${RESET_COLOR}
-
-# benchmark_Co
-$(BIN_DIR)/benchmark_Co: $(OBJECTS) $(BUILD_DIR)/benchmark_Co.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo ${GREEN} "$(BIN_DIR)/benchmark_Co built successfully." ${RESET_COLOR} 
-
-# benchmark_Eo
-$(BIN_DIR)/benchmark_Eo: $(OBJECTS) $(BUILD_DIR)/benchmark_Eo.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo ${GREEN} "$(BIN_DIR)/benchmark_Eo built successfully." ${RESET_COLOR} 
 	
 
 # Compile src folder
