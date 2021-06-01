@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= benchmark_Naive benchmark_Naive2 benchmark_Naive3 benchmark_Naive4 benchmark_Naive5 benchmark_Naive6 benchmark_Naive7
+TARGETS 	= benchmark_Naive8
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -66,6 +66,12 @@ $(BIN_DIR)/benchmark_Naive6: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive6.o
 $(BIN_DIR)/benchmark_Naive7: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive7.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive7 built successfully." ${RESET_COLOR}
+
+# benchmark_Naive8
+$(BIN_DIR)/benchmark_Naive8: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive8.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive8 built successfully." ${RESET_COLOR}
+
 
 # benchmark
 $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o

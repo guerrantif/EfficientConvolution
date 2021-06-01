@@ -11,8 +11,8 @@ int main(int argc, char const *argv[]){
     typedef float DType;
 
     // Input dimensions
-    constexpr uint32_t Hi = 600;
-    constexpr uint32_t Wi = 600;
+    constexpr uint32_t Hi = 10;
+    constexpr uint32_t Wi = 10;
     constexpr uint32_t Ci = 3;
     // Kernel dimensions
     constexpr uint32_t Hf = 5;
@@ -28,8 +28,8 @@ int main(int argc, char const *argv[]){
     auto padding = 0;
 
     // Test parameters
-    constexpr uint32_t N_TESTS = 1;
-    constexpr uint32_t ORDER_NUMBER = 7;
+    constexpr uint32_t N_TESTS = 50;
+    constexpr uint32_t ORDER_NUMBER = 8;
 
     // Print info
     std::cout << "input: " << "Hi: " << Hi << ", Wi: " << Wi << ", Ci: " << Ci << std::endl;
