@@ -5,6 +5,7 @@
 #include "Tensor.hh"
 #include "Kernel.hh"
 #include "Statistics.h"
+#include "Chronometer.hh"
 
 
 int main(int argc, char const *argv[]){
@@ -51,20 +52,24 @@ int main(int argc, char const *argv[]){
     const uint32_t N_TESTS = std::stoi(argv[6]);
 
     // Print info
-    std::cout << "input: " << "Hi: " << Hi << ", Wi: " << Wi << ", Ci: " << Ci << std::endl;
-    std::cout << "kernel: " << "Hf: " << Hf << ", Wf: " << Wf << ", Ef: " << Ef << ", Cf: " << Cf << std::endl;
+    std::cout << "Input -> " << "Hi: " << Hi << ", Wi: " << Wi << ", Ci: " << Ci << std::endl;
+    std::cout << "Kernel -> " << "Hf: " << Hf << ", Wf: " << Wf << ", Ef: " << Ef << ", Cf: " << Cf << std::endl;
     std::cout << "N. test: " << N_TESTS << std::endl;
     std::cout << "Order number: " << ORDER_NUMBER << std::endl;
 
     {
     // CONVOLUTION
+    Chronometer chronometer;
+    chronometer.start();
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
         auto output = image.convolveNaive(&kernel, stride, padding, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
     }
-    std::cout << "Execution time: " << stat.getMedian() << " ms\n";
+    std::cout << "Execution time (Median):\t" << stat.getMedian() << " ms\n";
+    chronometer.stop();
+    std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
     std::cout << "__________________________________________________________\n";   
     return 0;
