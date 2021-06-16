@@ -14,7 +14,6 @@ template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
     assert(this->size != 0);
     this->data = new T[this->size];
-    auto check = posix_memalign((void**)&(this->data), 16, size*sizeof(T));
     
     if(init == tensor::init::ZEROS){
         if constexpr (DO_PRINT){
@@ -845,6 +844,30 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
         }
     }
     break;
+
+    case 9: // Convolution (Order N. 9)
+    for(auto j = 0; j < Co; j++) {
+        for(auto k = 0; k < Wo; k++) {
+            for(auto l = 0; l < Ho; l++) {
+                for(auto i = 0; i < Ci; i++) {
+                    for(auto m = 0; m < Wf; m++) {
+                        for(auto n = 0; n < Hf; n++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
 
     default:
         std::cerr << "Please insert a valid order for naive convolution\n";
