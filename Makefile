@@ -1,9 +1,9 @@
 CXX 		= g++
 STD 		= c++17
 OPT 		= O3
-CXXFLAGS	= --std=$(STD) $(INCLUDES) -g
+CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= testTensor benchmark_opt benchmark_nopt
+TARGETS 	= benchmark_AlexNet
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -17,47 +17,48 @@ LDFLAGS		= -pthread
 SOURCES 	= $(shell find $(SRC_DIR) -name '*.cpp' | sort -k 1nr | cut -f2-)
 OBJECTS 	= $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
-all: .dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
+# COLORS
+GREEN="\e[92m"
+RESET_COLOR="\e[0m"
 
-.preprocess: .clean_build .dirs
+all: dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
 
-.dirs:
+dirs:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(BUILD_DIR)
 
-opt: CXXFLAGS += -$(OPT)
-opt: .preprocess $(BIN_DIR)/benchmark_opt
+# testForOrder
+$(BIN_DIR)/testForOrder: $(OBJECTS) $(BUILD_DIR)/testForOrder.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/testForOrder built successfully." ${RESET_COLOR}
 
-nopt: .preprocess $(BIN_DIR)/benchmark_nopt
+# benchmark_AlexNet
+$(BIN_DIR)/benchmark_AlexNet: $(OBJECTS) $(BUILD_DIR)/benchmark_AlexNet.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_AlexNet built successfully." ${RESET_COLOR}
 
-# testTensor
-$(BIN_DIR)/testTensor: $(OBJECTS) $(BUILD_DIR)/testTensor.o
-	@$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/testTensor built successfully."
+# benchmark_Naive
+$(BIN_DIR)/benchmark_Naive: $(OBJECTS) $(BUILD_DIR)/benchmark_Naive.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Naive built successfully." ${RESET_COLOR}
 
-# benchmark_opt
-$(BIN_DIR)/benchmark_opt: $(OBJECTS) $(BUILD_DIR)/benchmark.o
-	@$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/benchmark_opt built successfully."
+# benchmark
+$(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark built successfully." ${RESET_COLOR}
 	
-# benchmark_nopt
-$(BIN_DIR)/benchmark_nopt: $(OBJECTS) $(BUILD_DIR)/benchmark.o
-	@$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo "$(BIN_DIR)/benchmark_nopt built successfully."
 
 # Compile src folder
 $(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
-	@$(CXX) -c $< -o $@ $(CXXFLAGS)
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 # Compile test folder
 $(BUILD_DIR)/%.o: $(TEST_DIR)/%.cpp
-	@$(CXX) -c $< -o $@ $(CXXFLAGS)
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
-.PHONY: clean
 clean:
-	@rm -rf $(BUILD_DIR)/*.o
-	@rm -rf $(BIN_DIR)/*
+	rm -rf $(BUILD_DIR)/*.o
+	rm -rf $(BIN_DIR)/*
 
-.PHONY: clean_build
-.clean_build:
-	@rm -rf $(BUILD_DIR)/*.o
+clean_build:
+	rm -rf $(BUILD_DIR)/*.o

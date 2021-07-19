@@ -4,14 +4,17 @@
 #include <thread>
 #include <random>
 #include <cassert>
+#include <xmmintrin.h>
 
 #include "Tensor.hh"
+#include "Kernel.hh"
 #include "Chronometer.hh"
 
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
     assert(this->size != 0);
     this->data = new T[this->size];
+    
     if(init == tensor::init::ZEROS){
         if constexpr (DO_PRINT){
             std::cout << "init::ZEROS at (" << this << ")" << std::endl;
@@ -61,25 +64,25 @@ Tensor<T>::Tensor(){
 
 // 3D constructor
 template <class T>
-Tensor<T>::Tensor(const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init)
-    : nElements{1}, nChannels{nChannels_}, height{height_}, width{width_}, valid{true}{
+Tensor<T>::Tensor(const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init)
+    : nElements{1}, height{height_}, width{width_}, nChannels{nChannels_}, valid{true}{
     if constexpr (DO_PRINT){
         std::cout << "3D CONSTRUCTOR at (" << this << ")" << std::endl;
     }
     this->size = this->nElements * this->nChannels * this->height * this->width;
-    this->shape = {this->nElements, this->nChannels, this->height, this->width};
+    this->shape = {this->nElements, this->height, this->width, this->nChannels};
     this->init_data(init);
 }
 
 // 4D constructor
 template <class T>
-Tensor<T>::Tensor(const uint32_t& nElements_, const uint32_t& nChannels_, const uint32_t& height_, const uint32_t& width_, const tensor::init& init)
-    : nElements{nElements_}, nChannels{nChannels_}, height{height_}, width{width_}, valid{true}{
+Tensor<T>::Tensor(const uint32_t& nElements_, const uint32_t& height_, const uint32_t& width_, const uint32_t& nChannels_, const tensor::init& init)
+    : nElements{nElements_}, height{height_}, width{width_}, nChannels{nChannels_}, valid{true}{
     if constexpr (DO_PRINT){
         std::cout << "4D CONSTRUCTOR at (" << this << ")" << std::endl;
     }
     this->size = this->nElements * this->nChannels * this->height * this->width;
-    this->shape = {this->nElements, this->nChannels, this->height, this->width};
+    this->shape = {this->nElements, this->height, this->width, this->nChannels};
     this->init_data(init);
 }
 
@@ -114,10 +117,17 @@ Tensor<T>::Tensor(Tensor<T>&& other)
 template <class T>
 Tensor<T>::~Tensor() {
     if constexpr (DO_PRINT){
-        std::cout << "DESTRUCTOR at (" << this << ")" << std::endl;
+        std::cout << "DESTRUCTOR at (" << this << ") ";
     }
     if(this->data != nullptr){
         delete[] this->data;
+        if constexpr (DO_PRINT) {
+            std::cout << "- Data deallocation" << std::endl;
+        }
+    } else {
+        if constexpr (DO_PRINT) {
+            std::cout << "- Data was already deallocated before" << std::endl;
+        }
     }
 }
 
@@ -171,82 +181,92 @@ Tensor<T>& Tensor<T>::operator=(Tensor<T>&& other){
 // ################# Private operators at() #################
 // 3D operator at() const
 template <class T>
-const T& Tensor<T>::_at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
-    return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+const T& Tensor<T>::_at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
+    // return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 3D operator at() non-const
 template <class T>
-T& Tensor<T>::_at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
-    return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+T& Tensor<T>::_at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
+    // return this->data[(C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
-    return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+const T& Tensor<T>::_at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const {
+    // return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    std::cout << "TENSOR\n";
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::_at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
-    return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+T& Tensor<T>::_at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) {
+    // return this->data[(E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx)];
+    std::cout << "TENSOR\n";
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // ################# Public operators at() #################
 // 3D operator at() const
 template <class T>
-const T& Tensor<T>::at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
+const T& Tensor<T>::at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) const {
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 3D operator at() non-const
 template <class T>
-T& Tensor<T>::at(const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
+T& Tensor<T>::at(const uint32_t& H_idx, const uint32_t W_idx, const uint32_t& C_idx) {
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    return this->data[(H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() const
 template <class T>
-const T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) const {
+const T& Tensor<T>::at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) const {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    std::cout << "TENSOR\n";
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // 4D operator at() non-const
 template <class T>
-T& Tensor<T>::at(const uint32_t& E_idx, const uint32_t& C_idx, const uint32_t& H_idx, const uint32_t W_idx) {
+T& Tensor<T>::at(const uint32_t E_idx, const uint32_t H_idx, const uint32_t W_idx, const uint32_t C_idx) {
     assert(E_idx >= 0 && E_idx < this->nElements);
     assert(C_idx >= 0 && C_idx < this->nChannels);
     assert(H_idx >= 0 && H_idx < this->height);
     assert(W_idx >= 0 && W_idx < this->width);
-    auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
-    return this->data[idx];
+    // auto idx = (E_idx * this->nChannels * this->height * this->width) + (C_idx * this->height * this->width) + (H_idx * width) + (W_idx);
+    // return this->data[idx];
+    std::cout << "TENSOR\n";
+    return this->data[(E_idx * this->height * this->width * this->nChannels) + (H_idx * this->width * this->nChannels) + (W_idx * nChannels) + (C_idx)];
 }
 
 // Operator[] const
 template <class T>
-const T& Tensor<T>::operator[](const int32_t& idx) const {
-    assert(idx >= 0 && idx < this->size);
+const T& Tensor<T>::operator[](const int32_t idx) const {
     return this->data[idx];
 }
 
 // Operator[] non-const
 template <class T>
-T& Tensor<T>::operator[](const int32_t& idx) {
-    assert(idx >= 0 && idx < this->size);
+T& Tensor<T>::operator[](const int32_t idx) {
     return this->data[idx];
 }
 
@@ -274,7 +294,8 @@ template <class T>
 bool Tensor<T>::operator==(const Tensor<T>& other) {
     if (!(this->shape == other.shape)) return false;
     for(auto i = 0; i < this->size; i++) {
-        if (this->data[i] != other.data[i]) return false;
+        std::cout << this->data[i] << "?=" << other.data[i] << std::endl;
+        if (this->data[i] != other.data[i]);
     }
     return true;
 }
@@ -399,7 +420,7 @@ void Tensor<T>::convolveThread(Tensor<T>& output, const Tensor<T>& kernel, const
                                 int32_t Hi_idx = l*stride+n-padding;
                                 int32_t Wi_idx = k*stride+m-padding;
                                 bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
-                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
+                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this)._at(p, i, Hi_idx, Wi_idx);
                                 output._at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
                             }
                         }
@@ -501,7 +522,7 @@ Tensor<T>& Tensor<T>::convolveParallelCo(const Tensor<T>& kernel, const uint32_t
     uint32_t Wo = (Wi - Wf + 2*padding) / stride + 1;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
     // Create pool of threads
     std::vector<std::thread> threads;
@@ -568,7 +589,7 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
     uint32_t Wo = (Wi - Wf + 2*padding) / stride + 1;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
     // Create pool of threads
     std::vector<std::thread> threads;
@@ -611,54 +632,248 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
 }
 
 
-// Convolution operation (Naive)
+// Convolution operation (Naive), order 1 (Algorithm 1)
 template<class T>
-Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime) const {
     // Check for dimensions
-    assert(this->nChannels == kernel.nChannels);
-    // if(this->nChannels != kernel.nChannels) throw std::invalid_argument("Tensors have different dimensions");
+    assert(this->nChannels == kernel->nChannels);
 
     // Compute output dimensions
     uint32_t Eo = this->nElements;
-    uint32_t Co = kernel.nElements;
-    uint32_t Ho = (this->height - kernel.height + 2*padding) / stride + 1;
-    uint32_t Wo = (this->width - kernel.width + 2*padding) / stride + 1;
+    uint32_t Co = kernel->nElements;
+    uint32_t Ho = (this->height - kernel->height + 2*padding) / stride + 1;
+    uint32_t Wo = (this->width - kernel->width + 2*padding) / stride + 1;
 
     uint32_t Ci = this->nChannels;
     uint32_t Hi = this->height;
     uint32_t Wi = this->width;
 
-    uint32_t Hf = kernel.height;
-    uint32_t Wf = kernel.width;
+    uint32_t Hf = kernel->height;
+    uint32_t Wf = kernel->width;
 
     // Create the output
-    Tensor<T>* output = new Tensor(Eo, Co, Ho, Wo, tensor::init::ZEROS);
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
     Chronometer c;
     if constexpr (DO_TIME){
         c.start();
     }
 
-    // Convolution
-    for(auto p = 0; p < Eo; p++) {
+
+    switch (orderNumber) {
+    case 1: // Convolution (Order N. 1)
+    for(auto i = 0; i < Ci; i++) {
         for(auto j = 0; j < Co; j++) {
-            for(auto i = 0; i < Ci; i++) {
+            for(auto k = 0; k < Wo; k++) {
                 for(auto l = 0; l < Ho; l++) {
-                    for(auto n = 0; n < Hf; n++) {
-                        for(auto k = 0; k < Wo; k++) {
-                            for(auto m = 0; m < Wf; m++) {
-                                int32_t Hi_idx = l*stride+n-padding;
-                                int32_t Wi_idx = k*stride+m-padding;
-                                bool isPaddingPosition = ((Hi_idx < 0) || (Hi_idx >= Hi)) || ((Wi_idx < 0) || (Wi_idx >= Wi));
-                                auto inputTensorValue = (isPaddingPosition) ? T{} : (*this).at(p, i, Hi_idx, Wi_idx);
-                                output->_at(p, j, l, k) += inputTensorValue * kernel._at(j, i, n, m);
-                            }
+                    for(auto m = 0; m < Wf; m++) {
+                        for(auto n = 0; n < Hf; n++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
                     }
                 }
             }
         }
     }
+    break;
+
+    case 2: // Convolution (Order N. 2)
+    for(auto l = 0; l < Ho; l++) {
+        for(auto n = 0; n < Hf; n++) {
+            for(auto m = 0; m < Wf; m++) {
+                for(auto i = 0; i < Ci; i++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 3: // Convolution (Order N. 3)
+    for(auto l = 0; l < Ho; l++) {
+        for(auto n = 0; n < Hf; n++) {
+            for(auto i = 0; i < Ci; i++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 4: // Convolution (Order N. 4)
+    for(auto l = 0; l < Ho; l++) {
+        for(auto m = 0; m < Wf; m++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto i = 0; i < Ci; i++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 5: // Convolution (Order N. 5)
+    for(auto l = 0; l < Ho; l++) {
+        for(auto m = 0; m < Wf; m++) {
+            for(auto i = 0; i < Ci; i++) {
+                for(auto n = 0; n < Hf; n++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 6: // Convolution (Order N. 6)
+    for(auto l = 0; l < Ho; l++) {
+        for(auto i = 0; i < Ci; i++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 7: // Convolution (Order N. 7)
+    for(auto l = 0; l < Ho; l++) {
+        for(auto i = 0; i < Ci; i++) {
+            for(auto m = 0; m < Wf; m++) {
+                for(auto n = 0; n < Hf; n++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 8: // Convolution (Order N. 8)
+    for(auto k = 0; k < Wo; k++) {
+        for(auto j = 0; j < Co; j++) {
+            for(auto l = 0; l < Ho; l++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto n = 0; n < Hf; n++) {
+                        for(auto i = 0; i < Ci; i++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 9: // Convolution (Order N. 9)
+    for(auto j = 0; j < Co; j++) {
+        for(auto k = 0; k < Wo; k++) {
+            for(auto l = 0; l < Ho; l++) {
+                for(auto i = 0; i < Ci; i++) {
+                    for(auto m = 0; m < Wf; m++) {
+                        for(auto n = 0; n < Hf; n++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+
+    default:
+        std::cerr << "Please insert a valid order for naive convolution\n";
+        break;
+    }
+    
 
     if constexpr (DO_TIME){
         c.stop();
@@ -671,11 +886,11 @@ Tensor<T>& Tensor<T>::convolveNaive(const Tensor<T>& kernel, const uint32_t stri
     return *output;
 }
 
+
+
 // template <class T>
 // std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor)
 
 // Define the possible template types
-// template class Tensor<uint>;
-// template class Tensor<int>;
 template class Tensor<float>;
-template class Tensor<double>;
+// template class Tensor<double>;

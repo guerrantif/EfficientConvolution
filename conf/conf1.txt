@@ -1,0 +1,9 @@
+Ei  100
+Ci  3
+Hi  50
+Wi  50
+
+Ef  10
+Cf  3
+Hf  5
+Wf  5
