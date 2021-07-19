@@ -1,9 +1,9 @@
 CXX 		= g++
 STD 		= c++17
-OPT 		= O3
+OPT 		= 03
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= benchmark_AlexNet
+TARGETS 	= benchmark_Compilers
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -31,6 +31,11 @@ dirs:
 $(BIN_DIR)/testForOrder: $(OBJECTS) $(BUILD_DIR)/testForOrder.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo ${GREEN} "$(BIN_DIR)/testForOrder built successfully." ${RESET_COLOR}
+
+# benchmark_Compilers
+$(BIN_DIR)/benchmark_Compilers: $(OBJECTS) $(BUILD_DIR)/benchmark_Compilers.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_Compilers built successfully." ${RESET_COLOR}
 
 # benchmark_AlexNet
 $(BIN_DIR)/benchmark_AlexNet: $(OBJECTS) $(BUILD_DIR)/benchmark_AlexNet.o

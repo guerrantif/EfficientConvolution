@@ -295,7 +295,7 @@ bool Tensor<T>::operator==(const Tensor<T>& other) {
     if (!(this->shape == other.shape)) return false;
     for(auto i = 0; i < this->size; i++) {
         std::cout << this->data[i] << "?=" << other.data[i] << std::endl;
-        if (this->data[i] != other.data[i]);
+        if (this->data[i] != other.data[i]) return false;
     }
     return true;
 }
