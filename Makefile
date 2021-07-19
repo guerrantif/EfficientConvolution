@@ -1,6 +1,6 @@
 CXX 		= g++
 STD 		= c++17
-OPT 		= 03
+OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
 TARGETS 	= benchmark_Compilers
