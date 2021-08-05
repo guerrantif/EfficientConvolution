@@ -1,4 +1,4 @@
-CXX 		= g++
+CXX 		= icpx
 STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
