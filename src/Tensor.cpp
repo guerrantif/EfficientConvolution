@@ -295,7 +295,7 @@ bool Tensor<T>::operator==(const Tensor<T>& other) {
     if (!(this->shape == other.shape)) return false;
     for(auto i = 0; i < this->size; i++) {
         std::cout << this->data[i] << "?=" << other.data[i] << std::endl;
-        if (this->data[i] != other.data[i]);
+        if (this->data[i] != other.data[i]) return false;
     }
     return true;
 }
@@ -709,125 +709,10 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
 
     case 3: // Convolution (Order N. 3)
     for(auto l = 0; l < Ho; l++) {
-        for(auto n = 0; n < Hf; n++) {
-            for(auto i = 0; i < Ci; i++) {
-                for(auto m = 0; m < Wf; m++) {
-                    for(auto k = 0; k < Wo; k++) {
-                        for(auto j = 0; j < Co; j++) {
-                            auto Hi_idx = (l*stride) + n;
-                            auto Wi_idx = (k*stride) + m;
-                            // Compute indexes
-                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
-                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
-                            // Accumualate on output elements
-                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    break;
-
-    case 4: // Convolution (Order N. 4)
-    for(auto l = 0; l < Ho; l++) {
-        for(auto m = 0; m < Wf; m++) {
-            for(auto n = 0; n < Hf; n++) {
-                for(auto i = 0; i < Ci; i++) {
-                    for(auto k = 0; k < Wo; k++) {
-                        for(auto j = 0; j < Co; j++) {
-                            auto Hi_idx = (l*stride) + n;
-                            auto Wi_idx = (k*stride) + m;
-                            // Compute indexes
-                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
-                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
-                            // Accumualate on output elements
-                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    break;
-
-    case 5: // Convolution (Order N. 5)
-    for(auto l = 0; l < Ho; l++) {
-        for(auto m = 0; m < Wf; m++) {
-            for(auto i = 0; i < Ci; i++) {
+        for(auto k = 0; k < Wo; k++) {
+            for(auto j = 0; j < Co; j++) {
                 for(auto n = 0; n < Hf; n++) {
-                    for(auto k = 0; k < Wo; k++) {
-                        for(auto j = 0; j < Co; j++) {
-                            auto Hi_idx = (l*stride) + n;
-                            auto Wi_idx = (k*stride) + m;
-                            // Compute indexes
-                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
-                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
-                            // Accumualate on output elements
-                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    break;
-
-    case 6: // Convolution (Order N. 6)
-    for(auto l = 0; l < Ho; l++) {
-        for(auto i = 0; i < Ci; i++) {
-            for(auto n = 0; n < Hf; n++) {
-                for(auto m = 0; m < Wf; m++) {
-                    for(auto k = 0; k < Wo; k++) {
-                        for(auto j = 0; j < Co; j++) {
-                            auto Hi_idx = (l*stride) + n;
-                            auto Wi_idx = (k*stride) + m;
-                            // Compute indexes
-                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
-                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
-                            // Accumualate on output elements
-                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    break;
-
-    case 7: // Convolution (Order N. 7)
-    for(auto l = 0; l < Ho; l++) {
-        for(auto i = 0; i < Ci; i++) {
-            for(auto m = 0; m < Wf; m++) {
-                for(auto n = 0; n < Hf; n++) {
-                    for(auto k = 0; k < Wo; k++) {
-                        for(auto j = 0; j < Co; j++) {
-                            auto Hi_idx = (l*stride) + n;
-                            auto Wi_idx = (k*stride) + m;
-                            // Compute indexes
-                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
-                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
-                            // Accumualate on output elements
-                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    break;
-
-    case 8: // Convolution (Order N. 8)
-    for(auto k = 0; k < Wo; k++) {
-        for(auto j = 0; j < Co; j++) {
-            for(auto l = 0; l < Ho; l++) {
-                for(auto m = 0; m < Wf; m++) {
-                    for(auto n = 0; n < Hf; n++) {
+                    for(auto m = 0; m < Wf; m++) {
                         for(auto i = 0; i < Ci; i++) {
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
@@ -845,13 +730,13 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     }
     break;
 
-    case 9: // Convolution (Order N. 9)
-    for(auto j = 0; j < Co; j++) {
-        for(auto k = 0; k < Wo; k++) {
+    case 4: // Convolution (Order N. 4)
+    for(auto k = 0; k < Wo; k++) {
+        for(auto j = 0; j < Co; j++) {
             for(auto l = 0; l < Ho; l++) {
-                for(auto i = 0; i < Ci; i++) {
+                for(auto n = 0; n < Hf; n++) {
                     for(auto m = 0; m < Wf; m++) {
-                        for(auto n = 0; n < Hf; n++) {
+                        for(auto i = 0; i < Ci; i++) {
                             auto Hi_idx = (l*stride) + n;
                             auto Wi_idx = (k*stride) + m;
                             // Compute indexes
@@ -868,6 +753,74 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     }
     break;
 
+    case 5: // Convolution (Order N. 5)
+    for(auto k = 0; k < Wo; k++) {
+        for(auto j = 0; j < Co; j++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto i = 0; i < Ci; i++) {
+                        for(auto l = 0; l < Ho; l++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 6: // Convolution (Order N. 6)
+    for(auto n = 0; n < Hf; n++) {
+        for(auto m = 0; m < Wf; m++) {
+            for(auto i = 0; i < Ci; i++) {
+                for(auto k = 0; k < Wo; k++) {
+                    for(auto j = 0; j < Co; j++) {
+                        for(auto l = 0; l < Ho; l++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 7: // Convolution (Order N. 7)
+    for(auto n = 0; n < Hf; n++) {
+        for(auto m = 0; m < Wf; m++) {
+            for(auto i = 0; i < Ci; i++) {
+                for(auto l = 0; l < Ho; l++) {
+                    for(auto k = 0; k < Wo; k++) {
+                        for(auto j = 0; j < Co; j++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
 
     default:
         std::cerr << "Please insert a valid order for naive convolution\n";

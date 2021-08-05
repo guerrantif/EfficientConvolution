@@ -1,5 +1,6 @@
 #include "Statistics.h"
 #include <algorithm> // sort
+#include <iostream>
 
 // Add value to the collection
 void Statistics::addToCollection(const double value) {
