@@ -767,9 +767,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
-                            std::cout << "__" << n << ", " << m << ", " << i << ", " << j << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
-                                   
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
