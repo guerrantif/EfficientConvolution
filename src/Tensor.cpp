@@ -680,7 +680,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nChannels) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -719,12 +719,14 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     auto Wf_idx = m;
                                     auto Ef_idx = (j_ * Cob + jj) % Cob;
                                     auto Cf_idx = (i_ * Cib + ii) % Cib;
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    auto Ef_offset = j_ * Hf * Wf * Cib ;
-                                    auto kernelIndex = (Hf_idx * kernel->width * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob) + (Ef_offset + Ef_idx);    
+                                    auto Cf_offset = i_ * Hf * Wf * Cib * Cob;
+                                    auto Ef_offset = j_ * Hf * Wf * Cob;
+                                    // std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << std::endl;
+                                    auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob) + (Ef_offset + Ef_idx);    
+                                    
                                     // std::cout << kernelIndex << ": " << (*kernel)[kernelIndex] << std::endl;
                                     // std::cout << "Kernel " << " -> ";
-                                    // std::cout << Hf_index << ", " << Wf_index << ", " << Ef_index << ", " << Cf_index << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
+                                    // std::cout << Hf_idx << ", " << Wf_idx << ", " << Cf_idx << ", " << Ef_idx << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
                                     // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
                                     // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
                                     // std::cout << Co_idx;
@@ -765,7 +767,9 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
+                            std::cout << "__" << n << ", " << m << ", " << i << ", " << j << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
+                                   
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }

@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]){
     // Input dimensions
     const uint32_t Hi = 4;
     const uint32_t Wi = 4;
-    const uint32_t Ci = 4;
+    const uint32_t Ci = 2;
     // Kernel dimensions
     const uint32_t Hf = 2;
     const uint32_t Wf = 2;
@@ -32,8 +32,8 @@ int main(int argc, char const *argv[]){
 
     typedef float DType;
 
-    Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};         // H, W, C
-    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::INCR};    // H, W, E, C
+    Tensor<DType> image{Hi, Wi, Ci,tensor::init::RAND};         // H, W, C
+    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::RAND};    // H, W, E, C
 
     // Convolution paramters
     auto stride = 1;
