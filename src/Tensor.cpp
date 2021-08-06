@@ -13,7 +13,8 @@
 template <class T>
 void Tensor<T>::init_data(const tensor::init& init) {
     assert(this->size != 0);
-    this->data = new T[this->size];
+    // this->data = new T[this->size];
+    posix_memalign((void**)&this->data, 16, (this->size)*sizeof(T)); // 16B Alignment
     
     if(init == tensor::init::ZEROS){
         if constexpr (DO_PRINT){
@@ -651,6 +652,12 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     uint32_t Hf = kernel->height;
     uint32_t Wf = kernel->width;
 
+    // Compute blocking dimensions
+    uint32_t Cib = 1; 
+    uint32_t Cob = 2;
+    uint32_t Wob = Wo;
+    // std::cout << "Output -> " << "Ho: " << Ho << ", Wo: " << Wo << ", Co: " << Co << std::endl;
+
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
@@ -685,6 +692,68 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     break;
 
     case 2: // Convolution (Order N. 2)
+    for(auto j_ = 0; j_ < (Co / Cob); j_++) {
+    for(auto i_ = 0; i_ < (Ci / Cib); i_++) {
+        for(auto l = 0; l < Ho; l++) {
+            for(auto k_ = 0; k_ < (Wo / Wob); k_++) {
+                for(auto n = 0; n < Hf; n++) {
+                    for(auto m = 0; m < Wf; m++) {
+                        for(auto ii = 0; ii < Cib; ii++) {
+                            for(auto kk = 0; kk < Wob; kk++) {
+                                for(auto jj = 0; jj < Cob; jj++) {
+                                    // Input index
+                                    auto Hi_idx = (l*stride) + n;
+                                    auto Wi_idx = (k_*stride * Wob) + kk + m;
+                                    auto Ci_idx = (i_ * Cib + ii) % Cib;
+                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib) + (Wi_idx * Cib) + Ci_idx);
+                                    // auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + Ci_idx;
+                                    // Output index
+                                    auto Ho_idx = l;
+                                    auto Wo_idx = k_ * Wob + kk;
+                                    auto Co_idx = (j_ * Cob + jj) % Cob;
+                                    // std::cout << "Block offset: " << (j_*Ho*Wob*Cob) << std::endl;
+                                    auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob) + (Wo_idx * Cob) + Co_idx);
+                                    // auto outputIndex = (Ho_idx * output->width * output->nChannels) + (Wo_idx * output->nChannels) + Co_idx;
+                                    // Kernel index 
+                                    auto Hf_idx = n;
+                                    auto Wf_idx = m;
+                                    auto Ef_idx = (j_ * Cob + jj) % Cob;
+                                    auto Cf_idx = (i_ * Cib + ii) % Cib;
+                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
+                                    auto Ef_offset = j_ * Hf * Wf * Cib ;
+                                    auto kernelIndex = (Hf_idx * kernel->width * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob) + (Ef_offset + Ef_idx);    
+                                    // std::cout << kernelIndex << ": " << (*kernel)[kernelIndex] << std::endl;
+                                    // std::cout << "Kernel " << " -> ";
+                                    // std::cout << Hf_index << ", " << Wf_index << ", " << Ef_index << ", " << Cf_index << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
+                                    // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
+                                    // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
+                                    // std::cout << Co_idx;
+                                    // std::cout << "\n-------------------------\n";
+
+                                    // auto kernelIndex = (Hf_index * kernel->width * kernel->nElements * kernel->nChannels) + (Wf_index * kernel->nElements * kernel->nChannels) + (Ef_index * kernel->nChannels) + Cf_index;
+                                    
+                                    // Accumualate on output elements
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // std::cout << outputIndex << ": " << (*output)[outputIndex] << std::endl;
+                                    // std::cout << "Output" << " -> ";
+                                    // std::cout << Ho_idx << ", " << Wo_idx << ", " << Co_idx << ", [" << j_ << "]: " << (*output)[outputIndex] << " at " << &(*output)[outputIndex] << std::endl;
+                                    // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
+                                    // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
+                                    // std::cout << Co_idx;
+                                    // std::cout << "\n-------------------------\n";
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+    }
+    break;
+
+    case 20: // Convolution (Order N. 2)
     for(auto l = 0; l < Ho; l++) {
         for(auto n = 0; n < Hf; n++) {
             for(auto m = 0; m < Wf; m++) {
