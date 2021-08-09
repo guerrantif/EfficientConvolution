@@ -5,6 +5,7 @@
 #include <random>
 #include <cassert>
 #include <xmmintrin.h>
+#include <immintrin.h>
 
 #include "Tensor.hh"
 #include "Kernel.hh"
@@ -654,7 +655,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
 
     // Compute blocking dimensions
     uint32_t Cib = 1; 
-    uint32_t Cob = 2;
+    uint32_t Cob = 4;
     uint32_t Wob = Wo;
     // std::cout << "Output -> " << "Ho: " << Ho << ", Wo: " << Wo << ", Co: " << Co << std::endl;
 
@@ -700,7 +701,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                     for(auto m = 0; m < Wf; m++) {
                         for(auto ii = 0; ii < Cib; ii++) {
                             for(auto kk = 0; kk < Wob; kk++) {
-                                for(auto jj = 0; jj < Cob; jj++) {
+                                for(auto jj = 0; jj < Cob/4; jj+=4) {
                                     // Input index
                                     auto Hi_idx = (l*stride) + n;
                                     auto Wi_idx = (k_*stride * Wob) + kk + m;
@@ -710,9 +711,10 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // Output index
                                     auto Ho_idx = l;
                                     auto Wo_idx = k_ * Wob + kk;
-                                    auto Co_idx = (j_ * Cob + jj) % Cob;
+                                    auto Co_idx = (j_ * Cob + jj) % Cob;                                    
                                     // std::cout << "Block offset: " << (j_*Ho*Wob*Cob) << std::endl;
                                     auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob) + (Wo_idx * Cob) + Co_idx);
+
                                     // auto outputIndex = (Ho_idx * output->width * output->nChannels) + (Wo_idx * output->nChannels) + Co_idx;
                                     // Kernel index 
                                     auto Hf_idx = n;
@@ -735,7 +737,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // auto kernelIndex = (Hf_index * kernel->width * kernel->nElements * kernel->nChannels) + (Wf_index * kernel->nElements * kernel->nChannels) + (Ef_index * kernel->nChannels) + Cf_index;
                                     
                                     // Accumualate on output elements
-                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                                     // std::cout << outputIndex << ": " << (*output)[outputIndex] << std::endl;
                                     // std::cout << "Output" << " -> ";
                                     // std::cout << Ho_idx << ", " << Wo_idx << ", " << Co_idx << ", [" << j_ << "]: " << (*output)[outputIndex] << " at " << &(*output)[outputIndex] << std::endl;
@@ -743,6 +745,16 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
                                     // std::cout << Co_idx;
                                     // std::cout << "\n-------------------------\n";
+
+                                    /* SIMD operation */
+                                    {
+                                        __m128* outputSSE = (__m128*) &(*output)[outputIndex];
+                                        __m128* kernelSSE = (__m128*) &(*kernel)[kernelIndex];
+                                        __m128 inputScalar  = _mm_set1_ps((*this)[inputIndex]);
+                                        // _mm_store_ps(&(*output)[outputIndex], _mm_sqrt_ps(*kernelSSE)); // Prova senza senso
+                                        // _mm_store_ps(outputSSE, _mm_mul_ps(kernelSSE, outputSSE));                          
+                                        _mm_store_ps(&(*output)[outputIndex], (_mm_fmadd_ps(inputScalar, *kernelSSE, *outputSSE)));
+                                    }
                                 }
                             }
                         }
