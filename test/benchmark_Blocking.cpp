@@ -13,14 +13,14 @@ int main(int argc, char const *argv[]){
     // Input dimensions
     const uint32_t Hi = 27;
     const uint32_t Wi = 27;
-    const uint32_t Ci = 128;
+    const uint32_t Ci = 512;
     // Kernel dimensions
     const uint32_t Hf = 5;
     const uint32_t Wf = 5;
     const uint32_t Cf = Ci;
-    const uint32_t Ef = 1024;
+    const uint32_t Ef = 256;
 
-    // Input dimensions
+    // // Input dimensions
     // const uint32_t Hi = 4;
     // const uint32_t Wi = 4;
     // const uint32_t Ci = 4;
@@ -28,12 +28,12 @@ int main(int argc, char const *argv[]){
     // const uint32_t Hf = 2;
     // const uint32_t Wf = 2;
     // const uint32_t Cf = Ci;
-    // const uint32_t Ef = 16;
+    // const uint32_t Ef = 2;
 
     typedef float DType;
 
-    Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};         // H, W, C
-    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::INCR};    // H, W, E, C
+    Tensor<DType> image{Hi, Wi, Ci,tensor::init::RAND};         // H, W, C
+    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::RAND};    // H, W, E, C
 
     // Convolution paramters
     auto stride = 1;
@@ -71,7 +71,7 @@ int main(int argc, char const *argv[]){
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveNaive(&kernel, stride, padding, 8, 8, ORDER_NUMBER, &executionTime);
+        auto output = image.convolveNaive(&kernel, stride, padding, 16, 32, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
         // std::cout << "Output: ";
         // for(size_t i = 0; i < output.getSize(); i++) {

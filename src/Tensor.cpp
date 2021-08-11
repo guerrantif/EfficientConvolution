@@ -669,8 +669,6 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
-    uint32_t counter = 0;
-
     Chronometer c;
     if constexpr (DO_TIME){
         c.start();
@@ -717,27 +715,27 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // Input index
                                     auto Hi_idx = (l*stride) + n;
                                     auto Wi_idx = (k_*stride * Wob) + kk + m;
-                                    auto Ci_idx = (i_ * Cib + ii) % Cib_reduced;
+                                    auto Ci_idx = ii;
                                     auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
                                     // auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + Ci_idx;
                                     // Output index
                                     auto Ho_idx = l;
                                     auto Wo_idx = k_ * Wob + kk;
-                                    auto Co_idx = (j_ * Cob + jj) % Cob_reduced;                       
+                                    auto Co_idx = jj;                     
                                     // std::cout << "Block offset: " << (j_*Ho*Wob*Cob) << std::endl;
                                     auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
-                                    counter++;
-                                    // std::cout << outputIndex << std::endl;
+                                    // std::cout << "out-index: " << outputIndex << std::endl;
 
                                     // Kernel index 
                                     auto Hf_idx = n;
                                     auto Wf_idx = m;
-                                    auto Ef_idx = (j_ * Cob + jj) % Cob_reduced;
-                                    auto Cf_idx = (i_ * Cib + ii) % Cib_reduced;
-                                    auto Cf_offset = i_ * Hf * Wf * Cib_reduced * Cob_reduced;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob_reduced;
-                                    // std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << std::endl;
-                                    auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob_reduced * Cib_reduced) +  (Cf_offset + Cf_idx * Cob_reduced) + (Ef_offset + Ef_idx);    
+                                    auto Ef_idx = jj;
+                                    auto Cf_idx = ii;
+                                    auto Cf_offset = i_ * Hf * Wf * Cib * Cob;
+                                    auto Ef_offset = j_ * Hf * Wf * Cob;
+                                    // std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << " Cf_idx: " <<  Cf_idx <<std::endl;
+                                    // auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob_reduced) + (Ef_offset + Ef_idx);   
+                                    auto kernelIndex = Ef_offset + Cf_offset + (Hf_idx * Wf * Cib_reduced * Cob_reduced) + (Wf_idx * Cib_reduced * Cob_reduced) + (Cf_idx * Cob_reduced) + Ef_idx; 
                                     
                                     // std::cout << kernelIndex << ": " << (*kernel)[kernelIndex] << std::endl;
                                     // std::cout << "Kernel " << " -> ";
@@ -750,8 +748,8 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // auto kernelIndex = (Hf_index * kernel->width * kernel->nElements * kernel->nChannels) + (Wf_index * kernel->nElements * kernel->nChannels) + (Ef_index * kernel->nChannels) + Cf_index;
                                     
                                     // Accumualate on output elements
-                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                                     // std::cout << outputIndex << ": " << (*output)[outputIndex] << std::endl;
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                                     // std::cout << "Output" << " -> ";
                                     // std::cout << Ho_idx << ", " << Wo_idx << ", " << Co_idx << ", [" << j_ << "]: " << (*output)[outputIndex] << " at " << &(*output)[outputIndex] << std::endl;
                                     // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
@@ -778,7 +776,6 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
         }
     }
     }
-    std::cout << "n op: " << counter << std::endl;
     break;
 
     case 20: // Convolution (Order N. 2)
