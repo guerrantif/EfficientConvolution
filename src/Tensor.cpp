@@ -636,7 +636,7 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
 
 // Convolution operation (Naive), order 1 (Algorithm 1)
 template<class T>
-Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t Cib, const uint32_t Cob, const uint32_t orderNumber, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel->nChannels);
 
@@ -654,11 +654,9 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     uint32_t Wf = kernel->width;
 
     // Compute blocking dimensions
-    uint32_t Cib = 1; 
-    uint32_t Cob = 4;
+    Cib = (Cib < Ci) ? Cib : Ci; 
+    Cob = (Cob < Co) ? Cob : Co;
     uint32_t Wob = Wo;
-    // std::cout << "Output -> " << "Ho: " << Ho << ", Wo: " << Wo << ", Co: " << Co << std::endl;
-
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
 
@@ -701,7 +699,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                     for(auto m = 0; m < Wf; m++) {
                         for(auto ii = 0; ii < Cib; ii++) {
                             for(auto kk = 0; kk < Wob; kk++) {
-                                for(auto jj = 0; jj < Cob/4; jj+=4) {
+                                for(auto jj = 0; jj < Cob; jj++) {
                                     // Input index
                                     auto Hi_idx = (l*stride) + n;
                                     auto Wi_idx = (k_*stride * Wob) + kk + m;
@@ -737,7 +735,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // auto kernelIndex = (Hf_index * kernel->width * kernel->nElements * kernel->nChannels) + (Wf_index * kernel->nElements * kernel->nChannels) + (Ef_index * kernel->nChannels) + Cf_index;
                                     
                                     // Accumualate on output elements
-                                    // (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                                     // std::cout << outputIndex << ": " << (*output)[outputIndex] << std::endl;
                                     // std::cout << "Output" << " -> ";
                                     // std::cout << Ho_idx << ", " << Wo_idx << ", " << Co_idx << ", [" << j_ << "]: " << (*output)[outputIndex] << " at " << &(*output)[outputIndex] << std::endl;
@@ -747,14 +745,14 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // std::cout << "\n-------------------------\n";
 
                                     /* SIMD operation */
-                                    {
-                                        __m128* outputSSE = (__m128*) &(*output)[outputIndex];
-                                        __m128* kernelSSE = (__m128*) &(*kernel)[kernelIndex];
-                                        __m128 inputScalar  = _mm_set1_ps((*this)[inputIndex]);
-                                        // _mm_store_ps(&(*output)[outputIndex], _mm_sqrt_ps(*kernelSSE)); // Prova senza senso
-                                        // _mm_store_ps(outputSSE, _mm_mul_ps(kernelSSE, outputSSE));                          
-                                        _mm_store_ps(&(*output)[outputIndex], (_mm_fmadd_ps(inputScalar, *kernelSSE, *outputSSE)));
-                                    }
+                                    // {
+                                    //     __m128* outputSSE = (__m128*) &(*output)[outputIndex];
+                                    //     __m128* kernelSSE = (__m128*) &(*kernel)[kernelIndex];
+                                    //     __m128 inputScalar  = _mm_set1_ps((*this)[inputIndex]);
+                                    //     // _mm_store_ps(&(*output)[outputIndex], _mm_sqrt_ps(*kernelSSE)); // Prova senza senso
+                                    //     // _mm_store_ps(outputSSE, _mm_mul_ps(kernelSSE, outputSSE));                          
+                                    //     _mm_store_ps(&(*output)[outputIndex], (_mm_fmadd_ps(inputScalar, *kernelSSE, *outputSSE)));
+                                    // }
                                 }
                             }
                         }
