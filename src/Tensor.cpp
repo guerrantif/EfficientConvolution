@@ -636,7 +636,7 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
 
 // Convolution operation (Naive), order 1 (Algorithm 1)
 template<class T>
-Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t Cib, const uint32_t Cob, const uint32_t orderNumber, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t Cib_, const uint32_t Cob_, const uint32_t orderNumber, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel->nChannels);
 
@@ -654,11 +654,22 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     uint32_t Wf = kernel->width;
 
     // Compute blocking dimensions
-    Cib = (Cib < Ci) ? Cib : Ci; 
-    Cob = (Cob < Co) ? Cob : Co;
+    uint32_t Cib = (Cib_ < Ci) ? Cib_ : Ci;
+    uint32_t n_Cib_blocks = ((Ci % Cib) == 0) ? (Ci / Cib) : ((Ci / Cib) + 1); 
+    uint32_t Cib_reduced = Cib;
+
+    uint32_t Cob = (Cob_ < Co) ? Cob_ : Co;
+    uint32_t n_Cob_blocks = ((Co % Cob) == 0) ? (Co / Cob) : ((Co / Cob) + 1);
+    uint32_t Cob_reduced = Cob;
+    // std::cout << "Cob: " << Cob << " | " << "Cib: " << Cib << std::endl;
+    // std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | " << "n_Cib_blocks: " << n_Cib_blocks << std::endl;
+
     uint32_t Wob = Wo;
+
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
+
+    uint32_t counter = 0;
 
     Chronometer c;
     if constexpr (DO_TIME){
@@ -691,38 +702,42 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     break;
 
     case 2: // Convolution (Order N. 2)
-    for(auto j_ = 0; j_ < (Co / Cob); j_++) {
-    for(auto i_ = 0; i_ < (Ci / Cib); i_++) {
+    for(auto j_ = 0; j_ < n_Cob_blocks; j_++) {
+    if(j_ == (n_Cob_blocks-1) && ((Co % Cob) != 0)) { Cob_reduced = (Co % Cob); } // Handling the remaining block
+    // std::cout << "Cob size: "<< Cob_reduced << std::endl;
+    for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
+    if(i_ == (n_Cib_blocks-1) && ((Ci % Cib) != 0)) { Cib_reduced = (Ci % Cib); } // Handling the remaining block
         for(auto l = 0; l < Ho; l++) {
             for(auto k_ = 0; k_ < (Wo / Wob); k_++) {
                 for(auto n = 0; n < Hf; n++) {
                     for(auto m = 0; m < Wf; m++) {
-                        for(auto ii = 0; ii < Cib; ii++) {
+                        for(auto ii = 0; ii < Cib_reduced; ii++) {
                             for(auto kk = 0; kk < Wob; kk++) {
-                                for(auto jj = 0; jj < Cob; jj++) {
+                                for(auto jj = 0; jj < Cob_reduced; jj++) {
                                     // Input index
                                     auto Hi_idx = (l*stride) + n;
                                     auto Wi_idx = (k_*stride * Wob) + kk + m;
-                                    auto Ci_idx = (i_ * Cib + ii) % Cib;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib) + (Wi_idx * Cib) + Ci_idx);
+                                    auto Ci_idx = (i_ * Cib + ii) % Cib_reduced;
+                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
                                     // auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + Ci_idx;
                                     // Output index
                                     auto Ho_idx = l;
                                     auto Wo_idx = k_ * Wob + kk;
-                                    auto Co_idx = (j_ * Cob + jj) % Cob;                                    
+                                    auto Co_idx = (j_ * Cob + jj) % Cob_reduced;                       
                                     // std::cout << "Block offset: " << (j_*Ho*Wob*Cob) << std::endl;
-                                    auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob) + (Wo_idx * Cob) + Co_idx);
+                                    auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
+                                    counter++;
+                                    // std::cout << outputIndex << std::endl;
 
-                                    // auto outputIndex = (Ho_idx * output->width * output->nChannels) + (Wo_idx * output->nChannels) + Co_idx;
                                     // Kernel index 
                                     auto Hf_idx = n;
                                     auto Wf_idx = m;
-                                    auto Ef_idx = (j_ * Cob + jj) % Cob;
-                                    auto Cf_idx = (i_ * Cib + ii) % Cib;
-                                    auto Cf_offset = i_ * Hf * Wf * Cib * Cob;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob;
+                                    auto Ef_idx = (j_ * Cob + jj) % Cob_reduced;
+                                    auto Cf_idx = (i_ * Cib + ii) % Cib_reduced;
+                                    auto Cf_offset = i_ * Hf * Wf * Cib_reduced * Cob_reduced;
+                                    auto Ef_offset = j_ * Hf * Wf * Cob_reduced;
                                     // std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << std::endl;
-                                    auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob) + (Ef_offset + Ef_idx);    
+                                    auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob_reduced * Cib_reduced) +  (Cf_offset + Cf_idx * Cob_reduced) + (Ef_offset + Ef_idx);    
                                     
                                     // std::cout << kernelIndex << ": " << (*kernel)[kernelIndex] << std::endl;
                                     // std::cout << "Kernel " << " -> ";
@@ -763,6 +778,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
         }
     }
     }
+    std::cout << "n op: " << counter << std::endl;
     break;
 
     case 20: // Convolution (Order N. 2)

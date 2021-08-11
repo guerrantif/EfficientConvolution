@@ -11,14 +11,14 @@
 int main(int argc, char const *argv[]){
 
     // Input dimensions
-    const uint32_t Hi = 64;
-    const uint32_t Wi = 64;
+    const uint32_t Hi = 27;
+    const uint32_t Wi = 27;
     const uint32_t Ci = 128;
     // Kernel dimensions
-    const uint32_t Hf = 3;
-    const uint32_t Wf = 3;
+    const uint32_t Hf = 5;
+    const uint32_t Wf = 5;
     const uint32_t Cf = Ci;
-    const uint32_t Ef = 512;
+    const uint32_t Ef = 1024;
 
     // Input dimensions
     // const uint32_t Hi = 4;
@@ -49,9 +49,9 @@ int main(int argc, char const *argv[]){
     std::cout << "N. test: " << N_TESTS << std::endl;
     std::cout << "Order number: " << ORDER_NUMBER << std::endl;
 
-    // // Check correctness of results
-    // auto output1 = image.convolveNaive(&kernel, stride, padding, 2);
-    // auto output2 = image.convolveNaive(&kernel, stride, padding, 20);
+    // Check correctness of results
+    // auto output1 = image.convolveNaive(&kernel, stride, padding, 3, 1, 2);
+    // auto output2 = image.convolveNaive(&kernel, stride, padding, 2, 1, 2);
     // std::cout << "Saranno uguali??????????\n" << (output1==output2) << std::endl;
     // std::cout << "Out1: ";
     // for(size_t i = 0; i < output1.getSize(); i++) {
@@ -71,8 +71,12 @@ int main(int argc, char const *argv[]){
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveNaive(&kernel, stride, padding, ORDER_NUMBER, &executionTime);
+        auto output = image.convolveNaive(&kernel, stride, padding, 8, 8, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
+        // std::cout << "Output: ";
+        // for(size_t i = 0; i < output.getSize(); i++) {
+        //     std::cout << output.getData()[i] << ", ";
+        // }
     }
     std::cout << "Execution time (Median):\t" << stat.getMedian() << " ms\n";
     chronometer.stop();
