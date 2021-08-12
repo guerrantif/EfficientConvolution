@@ -720,7 +720,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     // auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + Ci_idx;
                                     // Output index
                                     auto Ho_idx = l;
-                                    auto Wo_idx = k_ * Wob + kk;
+                                    auto Wo_idx = kk;
                                     auto Co_idx = jj;                     
                                     // std::cout << "Block offset: " << (j_*Ho*Wob*Cob) << std::endl;
                                     auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
@@ -731,19 +731,19 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                                     auto Wf_idx = m;
                                     auto Ef_idx = jj;
                                     auto Cf_idx = ii;
-                                    auto Cf_offset = i_ * Hf * Wf * Cib * Cob;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob;
-                                    // std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << " Cf_idx: " <<  Cf_idx <<std::endl;
+                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;   
+                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
+                                    std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << " Cf_idx: " <<  Cf_idx <<std::endl;
                                     // auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob_reduced) + (Ef_offset + Ef_idx);   
-                                    auto kernelIndex = Ef_offset + Cf_offset + (Hf_idx * Wf * Cib_reduced * Cob_reduced) + (Wf_idx * Cib_reduced * Cob_reduced) + (Cf_idx * Cob_reduced) + Ef_idx; 
-                                    
-                                    // std::cout << kernelIndex << ": " << (*kernel)[kernelIndex] << std::endl;
+                                    // auto kernelIndex = Ef_offset + Cf_offset + (Hf_idx * Wf * Cib_reduced * Cob_reduced) + (Wf_idx * Cib_reduced * Cob_reduced) + (Cf_idx * Cob_reduced) + Ef_idx; 
+                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
+
                                     // std::cout << "Kernel " << " -> ";
-                                    // std::cout << Hf_idx << ", " << Wf_idx << ", " << Cf_idx << ", " << Ef_idx << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
+                                    std::cout << Hf_idx << ", " << Wf_idx << ", " << Cf_idx << ", " << Ef_idx << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
                                     // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
                                     // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
                                     // std::cout << Co_idx;
-                                    // std::cout << "\n-------------------------\n";
+                                    std::cout << "\n-------------------------\n";
 
                                     // auto kernelIndex = (Hf_index * kernel->width * kernel->nElements * kernel->nChannels) + (Wf_index * kernel->nElements * kernel->nChannels) + (Ef_index * kernel->nChannels) + Cf_index;
                                     
