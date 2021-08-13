@@ -12,6 +12,7 @@ public:
     void addToCollection(const double value);
     double getMedian();
     double getMean();
+    double getMin();
 };
 
 #endif

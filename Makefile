@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= benchmark_Blocking
+TARGETS 	= benchmark_MemoryBlocking
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -27,10 +27,10 @@ dirs:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(BUILD_DIR)
 
-# benchmark_Blocking
-$(BIN_DIR)/benchmark_Blocking: $(OBJECTS) $(BUILD_DIR)/benchmark_Blocking.o
+# benchmark_MemoryBlocking
+$(BIN_DIR)/benchmark_MemoryBlocking: $(OBJECTS) $(BUILD_DIR)/benchmark_MemoryBlocking.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo ${GREEN} "$(BIN_DIR)/benchmark_Blocking built successfully." ${RESET_COLOR}
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_MemoryBlocking built successfully." ${RESET_COLOR}
 
 # benchmark_Compilers
 $(BIN_DIR)/benchmark_Compilers: $(OBJECTS) $(BUILD_DIR)/benchmark_Compilers.o

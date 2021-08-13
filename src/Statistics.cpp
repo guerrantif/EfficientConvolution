@@ -24,3 +24,12 @@ double Statistics::getMean() {
     }
     return (sum / collection.size());
 }
+
+// Get Min value
+double Statistics::getMin() {
+    auto min = collection[0];
+    for(const auto el : collection) {
+        if(el < min) min = el;
+    }
+    return min;
+}

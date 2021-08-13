@@ -49,7 +49,7 @@ int main(int argc, char const *argv[]){
     std::cout << "N. test: " << N_TESTS << std::endl;
     std::cout << "Order number: " << ORDER_NUMBER << std::endl;
 
-    // Check correctness of results
+    // Check correctness of resultsconvolveNaive
     // auto output1 = image.convolveNaive(&kernel, stride, padding, 3, 1, 2);
     // auto output2 = image.convolveNaive(&kernel, stride, padding, 2, 1, 2);
     // std::cout << "Saranno uguali??????????\n" << (output1==output2) << std::endl;
@@ -66,22 +66,17 @@ int main(int argc, char const *argv[]){
 
     {
     // CONVOLUTION
-    Chronometer chronometer;
-    chronometer.start();
+    Chronometer chronometer; // Used for "Divsion" time (Used when the execution time is to short to be collected)
+    chronometer.start(); 
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
         auto output = image.convolveMemoryBlocking(&kernel, stride, padding, 32, 32, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
-        std::cout << "Output: ";
-        for(size_t i = 0; i < output.getSize(); i++) {
-            // std::cout << output.getData()[i] << ", ";
-            // auto a = 0;
-            // std::cin >> a; 
-        }
     }
-    std::cout << "Execution time (Median):\t" << stat.getMedian() << " ms\n";
     chronometer.stop();
+    std::cout << "Execution time (Median):\t" << stat.getMedian() << " ms\n";
+    std::cout << "Execution time (Minimum):\t" << stat.getMin() << " ms\n";
     std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
     std::cout << "__________________________________________________________\n";   
