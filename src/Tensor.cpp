@@ -634,9 +634,9 @@ Tensor<T>& Tensor<T>::convolveParallelEo(const Tensor<T>& kernel, const uint32_t
 }
 
 
-// Convolution operation (Naive), order 1 (Algorithm 1)
+// Convolution operation (Naive)
 template<class T>
-Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t Cib_, const uint32_t Cob_, const uint32_t orderNumber, float* executionTime) const {
+Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel->nChannels);
 
@@ -652,19 +652,6 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
 
     uint32_t Hf = kernel->height;
     uint32_t Wf = kernel->width;
-
-    // Compute blocking dimensions
-    uint32_t Cib = (Cib_ < Ci) ? Cib_ : Ci;
-    uint32_t n_Cib_blocks = ((Ci % Cib) == 0) ? (Ci / Cib) : ((Ci / Cib) + 1); 
-    uint32_t Cib_reduced = Cib;
-
-    uint32_t Cob = (Cob_ < Co) ? Cob_ : Co;
-    uint32_t n_Cob_blocks = ((Co % Cob) == 0) ? (Co / Cob) : ((Co / Cob) + 1);
-    uint32_t Cob_reduced = Cob;
-    // std::cout << "Cob: " << Cob << " | " << "Cib: " << Cib << std::endl;
-    // std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | " << "n_Cib_blocks: " << n_Cib_blocks << std::endl;
-
-    uint32_t Wob = Wo;
 
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
@@ -700,85 +687,6 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
     break;
 
     case 2: // Convolution (Order N. 2)
-    for(auto j_ = 0; j_ < n_Cob_blocks; j_++) {
-    if(j_ == (n_Cob_blocks-1) && ((Co % Cob) != 0)) { Cob_reduced = (Co % Cob); } // Handling the remaining block
-    // std::cout << "Cob size: "<< Cob_reduced << std::endl;
-    for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
-    if(i_ == (n_Cib_blocks-1) && ((Ci % Cib) != 0)) { Cib_reduced = (Ci % Cib); } // Handling the remaining block
-        for(auto l = 0; l < Ho; l++) {
-            for(auto k_ = 0; k_ < (Wo / Wob); k_++) {
-                for(auto n = 0; n < Hf; n++) {
-                    for(auto m = 0; m < Wf; m++) {
-                        for(auto ii = 0; ii < Cib_reduced; ii++) {
-                            for(auto kk = 0; kk < Wob; kk++) {
-                                for(auto jj = 0; jj < Cob_reduced; jj++) {
-                                    // Input index
-                                    auto Hi_idx = (l*stride) + n;
-                                    auto Wi_idx = (k_*stride * Wob) + kk + m;
-                                    auto Ci_idx = ii;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
-                                    // auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + Ci_idx;
-                                    // Output index
-                                    auto Ho_idx = l;
-                                    auto Wo_idx = kk;
-                                    auto Co_idx = jj;                     
-                                    // std::cout << "Block offset: " << (j_*Ho*Wob*Cob) << std::endl;
-                                    auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
-                                    // std::cout << "out-index: " << outputIndex << std::endl;
-
-                                    // Kernel index 
-                                    auto Hf_idx = n;
-                                    auto Wf_idx = m;
-                                    auto Ef_idx = jj;
-                                    auto Cf_idx = ii;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;   
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << " Cf_idx: " <<  Cf_idx <<std::endl;
-                                    // auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob_reduced) + (Ef_offset + Ef_idx);   
-                                    // auto kernelIndex = Ef_offset + Cf_offset + (Hf_idx * Wf * Cib_reduced * Cob_reduced) + (Wf_idx * Cib_reduced * Cob_reduced) + (Cf_idx * Cob_reduced) + Ef_idx; 
-                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
-
-                                    // std::cout << "Kernel " << " -> ";
-                                    std::cout << Hf_idx << ", " << Wf_idx << ", " << Cf_idx << ", " << Ef_idx << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
-                                    // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
-                                    // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
-                                    // std::cout << Co_idx;
-                                    std::cout << "\n-------------------------\n";
-
-                                    // auto kernelIndex = (Hf_index * kernel->width * kernel->nElements * kernel->nChannels) + (Wf_index * kernel->nElements * kernel->nChannels) + (Ef_index * kernel->nChannels) + Cf_index;
-                                    
-                                    // Accumualate on output elements
-                                    // std::cout << outputIndex << ": " << (*output)[outputIndex] << std::endl;
-                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                                    // std::cout << "Output" << " -> ";
-                                    // std::cout << Ho_idx << ", " << Wo_idx << ", " << Co_idx << ", [" << j_ << "]: " << (*output)[outputIndex] << " at " << &(*output)[outputIndex] << std::endl;
-                                    // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
-                                    // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
-                                    // std::cout << Co_idx;
-                                    // std::cout << "\n-------------------------\n";
-
-                                    /* SIMD operation */
-                                    // {
-                                    //     __m128* outputSSE = (__m128*) &(*output)[outputIndex];
-                                    //     __m128* kernelSSE = (__m128*) &(*kernel)[kernelIndex];
-                                    //     __m128 inputScalar  = _mm_set1_ps((*this)[inputIndex]);
-                                    //     // _mm_store_ps(&(*output)[outputIndex], _mm_sqrt_ps(*kernelSSE)); // Prova senza senso
-                                    //     // _mm_store_ps(outputSSE, _mm_mul_ps(kernelSSE, outputSSE));                          
-                                    //     _mm_store_ps(&(*output)[outputIndex], (_mm_fmadd_ps(inputScalar, *kernelSSE, *outputSSE)));
-                                    // }
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-    }
-    break;
-
-    case 20: // Convolution (Order N. 2)
     for(auto l = 0; l < Ho; l++) {
         for(auto n = 0; n < Hf; n++) {
             for(auto m = 0; m < Wf; m++) {
@@ -932,6 +840,168 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
 
     return *output;
 }
+
+// Convolution operation (Memory-blocking)
+template<class T>
+Tensor<T>& Tensor<T>::convolveMemoryBlocking(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t Cib_, const uint32_t Cob_, const uint32_t orderNumber, float* executionTime) const {
+    // Check for dimensions
+    assert(this->nChannels == kernel->nChannels);
+
+    // Compute output dimensions
+    uint32_t Eo = this->nElements;
+    uint32_t Co = kernel->nElements;
+    uint32_t Ho = (this->height - kernel->height + 2*padding) / stride + 1;
+    uint32_t Wo = (this->width - kernel->width + 2*padding) / stride + 1;
+
+    uint32_t Ci = this->nChannels;
+    uint32_t Hi = this->height;
+    uint32_t Wi = this->width;
+
+    uint32_t Hf = kernel->height;
+    uint32_t Wf = kernel->width;
+
+    // Compute blocking dimensions
+    uint32_t Cib = (Cib_ < Ci) ? Cib_ : Ci;
+    uint32_t n_Cib_blocks = ((Ci % Cib) == 0) ? (Ci / Cib) : ((Ci / Cib) + 1); 
+    uint32_t Cib_reduced = Cib;
+
+    uint32_t Cob = (Cob_ < Co) ? Cob_ : Co;
+    uint32_t n_Cob_blocks = ((Co % Cob) == 0) ? (Co / Cob) : ((Co / Cob) + 1);
+    uint32_t Cob_reduced = Cob;
+    // std::cout << "Cob: " << Cob << " | " << "Cib: " << Cib << std::endl;
+    // std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | " << "n_Cib_blocks: " << n_Cib_blocks << std::endl;
+
+    uint32_t Wob = Wo;
+
+    // Create the output
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
+
+    Chronometer c;
+    if constexpr (DO_TIME){
+        c.start();
+    }
+
+
+    switch (orderNumber) {
+    case 1: // Convolution (Order N. 1)
+    for(auto i = 0; i < Ci; i++) {
+        for(auto j = 0; j < Co; j++) {
+            for(auto k = 0; k < Wo; k++) {
+                for(auto l = 0; l < Ho; l++) {
+                    for(auto m = 0; m < Wf; m++) {
+                        for(auto n = 0; n < Hf; n++) {
+                            auto Hi_idx = (l*stride) + n;
+                            auto Wi_idx = (k*stride) + m;
+                            // Compute indexes
+                            auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                            auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nChannels) + j;
+                            // Accumualate on output elements
+                            (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    break;
+
+    case 2: // Convolution (Order N. 2)
+    for(auto j_ = 0; j_ < n_Cob_blocks; j_++) {
+    if(j_ == (n_Cob_blocks-1) && ((Co % Cob) != 0)) { Cob_reduced = (Co % Cob); } // Handling the remaining block
+    for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
+    if(i_ == (n_Cib_blocks-1) && ((Ci % Cib) != 0)) { Cib_reduced = (Ci % Cib); } // Handling the remaining block
+    // std::cout << "Cob size: "<< Cob_reduced << std::endl;
+        for(auto l = 0; l < Ho; l++) {
+            for(auto k_ = 0; k_ < (Wo / Wob); k_++) {
+                for(auto n = 0; n < Hf; n++) {
+                    for(auto m = 0; m < Wf; m++) {
+                        for(auto ii = 0; ii < Cib_reduced; ii++) {
+                            for(auto kk = 0; kk < Wob; kk++) {
+                                for(auto jj = 0; jj < Cob_reduced; jj++) {
+                                    // Input index
+                                    auto Hi_idx = (l*stride) + n;
+                                    auto Wi_idx = (k_*stride * Wob) + kk + m;
+                                    auto Ci_idx = ii;
+                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
+                                    // auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + Ci_idx;
+                                    // Output index
+                                    auto Ho_idx = l;
+                                    auto Wo_idx = kk;
+                                    auto Co_idx = jj;                     
+                                    // std::cout << "Block offset: " << (j_*Ho*Wob*Cob) << std::endl;
+                                    auto outputIndex = (j_*Ho*Wob*Cob) + ((Ho_idx * Wob * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
+                                    // std::cout << "out-index: " << outputIndex << std::endl;
+
+                                    // Kernel index 
+                                    auto Hf_idx = n;
+                                    auto Wf_idx = m;
+                                    auto Ef_idx = jj;
+                                    auto Cf_idx = ii;
+                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;   
+                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
+                                    // std::cout << "Ef OFFSET: " << Ef_offset << ",   Ef_idx: " << Ef_idx <<" | Cf_OFFSET: " << Cf_offset << " Cf_idx: " <<  Cf_idx <<std::endl;
+                                    // auto kernelIndex = (Hf_idx * Wf * Cob * Cib) + (Wf_idx * Cob * Cib) +  (Cf_offset + Cf_idx * Cob_reduced) + (Ef_offset + Ef_idx);   
+                                    // auto kernelIndex = Ef_offset + Cf_offset + (Hf_idx * Wf * Cib_reduced * Cob_reduced) + (Wf_idx * Cib_reduced * Cob_reduced) + (Cf_idx * Cob_reduced) + Ef_idx; 
+                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
+
+                                    // std::cout << "Kernel " << " -> ";
+                                    // std::cout << Hf_idx << ", " << Wf_idx << ", " << Cf_idx << ", " << Ef_idx << ": " << (*kernel)[kernelIndex] << " at " << &(*kernel)[kernelIndex] << std::endl;
+                                    // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
+                                    // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
+                                    // std::cout << Co_idx;
+                                    // std::cout << "\n-------------------------\n";
+
+                                    // auto kernelIndex = (Hf_index * kernel->width * kernel->nElements * kernel->nChannels) + (Wf_index * kernel->nElements * kernel->nChannels) + (Ef_index * kernel->nChannels) + Cf_index;
+                                    
+                                    // Accumualate on output elements
+                                    // std::cout << outputIndex << ": " << (*output)[outputIndex] << std::endl;
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // std::cout << "Output" << " -> ";
+                                    // std::cout << Ho_idx << ", " << Wo_idx << ", " << Co_idx << ", [" << j_ << "]: " << (*output)[outputIndex] << " at " << &(*output)[outputIndex] << std::endl;
+                                    // std::cout << "(" << Ho_idx  << "*" << Wob << "*" << Cob << ") + ";
+                                    // std::cout << "(" << Wo_idx  << "*" << Cob << ") + ";
+                                    // std::cout << Co_idx;
+                                    // std::cout << "\n-------------------------\n";
+
+                                    /* SIMD operation */
+                                    // {
+                                    //     __m128* outputSSE = (__m128*) &(*output)[outputIndex];
+                                    //     __m128* kernelSSE = (__m128*) &(*kernel)[kernelIndex];
+                                    //     __m128 inputScalar  = _mm_set1_ps((*this)[inputIndex]);
+                                    //     // _mm_store_ps(&(*output)[outputIndex], _mm_sqrt_ps(*kernelSSE)); // Prova senza senso
+                                    //     // _mm_store_ps(outputSSE, _mm_mul_ps(kernelSSE, outputSSE));                          
+                                    //     _mm_store_ps(&(*output)[outputIndex], (_mm_fmadd_ps(inputScalar, *kernelSSE, *outputSSE)));
+                                    // }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+    }
+    break;
+
+    default:
+        std::cerr << "Please insert a valid order for naive convolution\n";
+        break;
+    }
+    
+
+    if constexpr (DO_TIME){
+        c.stop();
+        // std::cout << c.getTime() << std::endl;
+        if(executionTime != nullptr) {
+            *executionTime = c.getTime();
+        }
+    }
+
+    return *output;
+}
+
 
 
 

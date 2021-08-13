@@ -10,25 +10,25 @@
 
 int main(int argc, char const *argv[]){
 
-    // // Input dimensions
-    // const uint32_t Hi = 27;
-    // const uint32_t Wi = 27;
-    // const uint32_t Ci = 512;
-    // // Kernel dimensions
-    // const uint32_t Hf = 3;
-    // const uint32_t Wf = 3;
-    // const uint32_t Cf = Ci;
-    // const uint32_t Ef = 256;
+    // Input dimensions
+    const uint32_t Hi = 27;
+    const uint32_t Wi = 27;
+    const uint32_t Ci = 128;
+    // Kernel dimensions
+    const uint32_t Hf = 3;
+    const uint32_t Wf = 3;
+    const uint32_t Cf = Ci;
+    const uint32_t Ef = 1024;
 
     // Input dimensions
-    const uint32_t Hi = 3;
-    const uint32_t Wi = 3;
-    const uint32_t Ci = 5;
-    // Kernel dimensions
-    const uint32_t Hf = 2;
-    const uint32_t Wf = 2;
-    const uint32_t Cf = Ci;
-    const uint32_t Ef = 2;
+    // const uint32_t Hi = 3;
+    // const uint32_t Wi = 3;
+    // const uint32_t Ci = 4;
+    // // Kernel dimensions
+    // const uint32_t Hf = 2;
+    // const uint32_t Wf = 2;
+    // const uint32_t Cf = Ci;
+    // const uint32_t Ef = 2;
 
     typedef float DType;
 
@@ -71,13 +71,13 @@ int main(int argc, char const *argv[]){
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveNaive(&kernel, stride, padding, 3, Ef, ORDER_NUMBER, &executionTime);
+        auto output = image.convolveMemoryBlocking(&kernel, stride, padding, 32, 32, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
         std::cout << "Output: ";
         for(size_t i = 0; i < output.getSize(); i++) {
-            std::cout << output.getData()[i] << ", ";
-            auto a = 0;
-            std::cin >> a; 
+            // std::cout << output.getData()[i] << ", ";
+            // auto a = 0;
+            // std::cin >> a; 
         }
     }
     std::cout << "Execution time (Median):\t" << stat.getMedian() << " ms\n";

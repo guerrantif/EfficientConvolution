@@ -69,8 +69,10 @@ public:
     // Convolution operator (parallel) - dimension: output nElements
     Tensor<T>& convolveParallelEo(const Tensor<T>& kernel, const uint32_t stride, const uint32_t padding, const uint32_t nThreads, float* executionTime =nullptr) const;
 
-    /* Naive convolution */
-    Tensor<T>& convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t Cib_, const uint32_t Cob_, const uint32_t orderNumber, float* executionTime =nullptr) const;
+    // Naive convolution
+    Tensor<T>& convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
+    // Memory-blocking convolution
+    Tensor<T>& convolveMemoryBlocking(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t Cib_, const uint32_t Cob_, const uint32_t orderNumber, float* executionTime =nullptr) const;
 
     
 public:
