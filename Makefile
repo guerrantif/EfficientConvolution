@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= benchmark_MemoryBlocking
+TARGETS 	= benchmark_MemoryBlocking benchmark_Naive
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src

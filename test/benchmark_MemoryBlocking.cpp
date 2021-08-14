@@ -10,59 +10,62 @@
 
 int main(int argc, char const *argv[]){
 
-    // Input dimensions
-    const uint32_t Hi = 27;
-    const uint32_t Wi = 27;
-    const uint32_t Ci = 128;
-    // Kernel dimensions
-    const uint32_t Hf = 3;
-    const uint32_t Wf = 3;
-    const uint32_t Cf = Ci;
-    const uint32_t Ef = 1024;
+    // Manage the input arguments 
+    // arg[1]:  Size of images
+    // arg[2]:  Depth of images
+    // arg[3]:  Size of kernels
+    // arg[4]:  Number of kernels
+    // arg[5]:  Number of blocked channel of input tensor
+    // arg[6]:  Number of blocked channel of output tensor
+    // arg[7]:  Order number of for loops
+    // arg[8]:  Number of tests to do
+    if(argc != 10) {
+        std::cerr << "Please insert 6 arguments as follow:\n";
+        std::cout << "arg[1]:  Size of images\n";
+        std::cout << "arg[2]:  Depth of images\n";
+        std::cout << "arg[3]:  Size of kernels\n";
+        std::cout << "arg[4]:  Number of kernels\n";
+        std::cout << "arg[5]:  Number of blocked channel of input tensor\n";
+        std::cout << "arg[6]:  Number of blocked channel of output tensor\n";
+        std::cout << "arg[7]:  Number of blocked width of output tensor\n";
+        std::cout << "arg[8]:  Order number of for loops\n";
+        std::cout << "arg[9]:  Number of tests to do\n";
+        return 1;
+    }
 
     // Input dimensions
-    // const uint32_t Hi = 3;
-    // const uint32_t Wi = 3;
-    // const uint32_t Ci = 4;
-    // // Kernel dimensions
-    // const uint32_t Hf = 2;
-    // const uint32_t Wf = 2;
-    // const uint32_t Cf = Ci;
-    // const uint32_t Ef = 2;
+    const uint32_t Hi = std::stoi(argv[1]);
+    const uint32_t Wi = std::stoi(argv[1]);
+    const uint32_t Ci = std::stoi(argv[2]);
+    // Kernel dimensions
+    const uint32_t Hf = std::stoi(argv[3]);
+    const uint32_t Wf = std::stoi(argv[3]);
+    const uint32_t Cf = Ci;
+    const uint32_t Ef = std::stoi(argv[4]);
+    // Blocked dimensions
+    const int32_t Cib = std::stoi(argv[5]);
+    const int32_t Cob = std::stoi(argv[6]);
+    const int32_t Wob = std::stoi(argv[7]);
 
     typedef float DType;
 
-    Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};         // H, W, C
-    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::INCR};    // H, W, E, C
+    Tensor<DType> image{Hi, Wi, Ci,tensor::init::RAND};         // H, W, C
+    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::RAND};    // H, W, E, C
 
     // Convolution paramters
     auto stride = 1;
     auto padding = 0;
 
     // Test parameters
-    const uint32_t ORDER_NUMBER = std::stoi(argv[5]);
-    const uint32_t N_TESTS = std::stoi(argv[6]);
+    const uint32_t ORDER_NUMBER = std::stoi(argv[8]);
+    const uint32_t N_TESTS = std::stoi(argv[9]);
 
     // Print info
     std::cout << "Input -> " << "Hi: " << Hi << ", Wi: " << Wi << ", Ci: " << Ci << std::endl;
     std::cout << "Kernel -> " << "Hf: " << Hf << ", Wf: " << Wf << ", Ef: " << Ef << ", Cf: " << Cf << std::endl;
+    std::cout << "Blocked dimensions -> " << "Cib: " << Cib << ", Cob: " << Cob << ", Wob: " << Wob <<  std::endl;
     std::cout << "N. test: " << N_TESTS << std::endl;
     std::cout << "Order number: " << ORDER_NUMBER << std::endl;
-
-    // Check correctness of resultsconvolveNaive
-    // auto output1 = image.convolveNaive(&kernel, stride, padding, 3, 1, 2);
-    // auto output2 = image.convolveNaive(&kernel, stride, padding, 2, 1, 2);
-    // std::cout << "Saranno uguali??????????\n" << (output1==output2) << std::endl;
-    // std::cout << "Out1: ";
-    // for(size_t i = 0; i < output1.getSize(); i++) {
-    //     std::cout << output1.getData()[i] << ", ";
-    // }
-    // std::cout << std::endl;
-    // std::cout << "Out2: ";
-    // for(size_t i = 0; i < output2.getSize(); i++) {
-    //     std::cout << output2.getData()[i] << ", ";
-    // }
-    // std::cout << std::endl;
 
     {
     // CONVOLUTION
@@ -71,7 +74,7 @@ int main(int argc, char const *argv[]){
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveMemoryBlocking(&kernel, stride, padding, 32, 32, ORDER_NUMBER, &executionTime);
+        auto output = image.convolveMemoryBlocking(&kernel, stride, padding, Cib, Cob, Wob, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
     }
     chronometer.stop();

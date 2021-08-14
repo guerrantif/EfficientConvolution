@@ -67,8 +67,9 @@ int main(int argc, char const *argv[]){
         auto output = image.convolveNaive(&kernel, stride, padding, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
     }
-    std::cout << "Execution time (Median):\t" << stat.getMedian() << " ms\n";
     chronometer.stop();
+    std::cout << "Execution time (Median):\t" << stat.getMedian() << " ms\n";
+    std::cout << "Execution time (Minimum):\t" << stat.getMin() << " ms\n";
     std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
     std::cout << "__________________________________________________________\n";   
