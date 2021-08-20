@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= benchmark_MemoryBlocking benchmark_Naive
+TARGETS 	= benchmark_Naive benchmark_NaiveOptimised
 
 BIN_DIR 	= ./bin
 SRC_DIR 	= ./src
@@ -26,6 +26,11 @@ all: dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
 dirs:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(BUILD_DIR)
+
+# benchmark_NaiveOptimised
+$(BIN_DIR)/benchmark_NaiveOptimised: $(OBJECTS) $(BUILD_DIR)/benchmark_NaiveOptimised.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_NaiveOptimised built successfully." ${RESET_COLOR}
 
 # benchmark_MemoryBlocking
 $(BIN_DIR)/benchmark_MemoryBlocking: $(OBJECTS) $(BUILD_DIR)/benchmark_MemoryBlocking.o

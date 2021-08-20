@@ -677,7 +677,6 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                            // std::cout << "NO opt: " << kernelIndex << std::endl;
                         }
                     }
                 }
@@ -817,7 +816,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                            std::cout << "NO opt: " << outputIndex << " | " << inputIndex << " | " << kernelIndex << std::endl;
+                            
                         }
                     }
                 }
@@ -963,7 +962,6 @@ Tensor<T>& Tensor<T>::convolveNaiveOptimised(const Kernel<T>* kernel, const uint
                             kernelIndex += i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                            std::cout << "opt. " << kernelIndex <<std::endl;
                         }
                     }
                 }
@@ -997,7 +995,6 @@ Tensor<T>& Tensor<T>::convolveNaiveOptimised(const Kernel<T>* kernel, const uint
                             kernelIndex += i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                            std::cout << "opt: " << outputIndex << " | " << inputIndex << " | " << kernelIndex << std::endl;
                         }
                     }
                 }
@@ -1098,7 +1095,6 @@ Tensor<T>& Tensor<T>::convolveNaiveOptimised(const Kernel<T>* kernel, const uint
                             // auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                            std::cout << "opt: " << outputIndex << " | " << inputIndex << " | " << kernelIndex <<std::endl;
                         }
                     }
                 }
