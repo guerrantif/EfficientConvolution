@@ -40,8 +40,8 @@ int main(int argc, char const *argv[]){
 
     typedef float DType;
 
-    Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};         // H, W, C
-    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::INCR};    // H, W, E, C
+    Tensor<DType> image{Hi, Wi, Ci,tensor::init::RAND};         // H, W, C
+    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::RAND};    // H, W, E, C
 
     // Convolution paramters
     auto stride = 1;
@@ -72,6 +72,13 @@ int main(int argc, char const *argv[]){
     std::cout << "Execution time (Minimum):\t" << stat.getMin() << " ms\n";
     std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
-    std::cout << "__________________________________________________________\n";   
+
+    // Check for equality
+    // float executionTime, executionTimeOpt;
+    // auto orderToTest = 7;
+    // auto output = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTime);
+    // auto output_opt = image.convolveNaiveOptimised(&kernel, stride, padding, orderToTest, &executionTimeOpt);
+    // std::cout << "Are they equal? " << (output == output_opt) << std::endl;
+    // std::cout << "__________________________________________________________\n";   
     return 0;
 }
