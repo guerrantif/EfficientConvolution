@@ -75,7 +75,7 @@ int main(int argc, char const *argv[]){
 
     // Check for equality
     // float executionTime, executionTimeOpt;
-    // auto orderToTest = 7;
+    // auto orderToTest = 3;
     // auto output = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTime);
     // auto output_opt = image.convolveNaiveOptimised(&kernel, stride, padding, orderToTest, &executionTimeOpt);
     // std::cout << "Are they equal? " << (output == output_opt) << std::endl;

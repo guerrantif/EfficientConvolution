@@ -953,13 +953,11 @@ Tensor<T>& Tensor<T>::convolveNaiveOptimised(const Kernel<T>* kernel, const uint
                     for(auto m = 0; m < Wf; m++) {
                         const auto Wi_idx = (k*stride) + m;
                         const auto inputOffset = inputOffset0 + (Wi_idx * this->nChannels);
-                        int32_t inputIndex = inputOffset;
                         kernelIndex0 += (kernel->nElements * kernel->nChannels);
-                        int32_t kernelIndex = kernelIndex0;
                         for(auto i = 0; i < Ci; i++) {
                             // Compute indexes
-                            inputIndex += i;
-                            kernelIndex += i;
+                            const auto inputIndex = inputOffset + i;
+                            const auto kernelIndex = kernelIndex0 + i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
