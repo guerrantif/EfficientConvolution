@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]){
     }
 
     // Check for equality
-    float executionTime, executionTimeOpt;
+    // float executionTime, executionTimeOpt;
     // auto orderToTest = 6;
     // auto output = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTime);
     // auto output_opt = image.convolveNaiveOptimised(&kernel, stride, padding, orderToTest, &executionTimeOpt);

@@ -698,7 +698,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j* kernel->nChannels) + i;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -1150,6 +1150,7 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
     // std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | n_Cib_blocks: " << n_Cib_blocks << " | n_Wob_blocks: " << n_Wob_blocks << std::endl;
     // std::cout << "Wob_redcued: " << Wob_reduced << std::endl;
     // std::cout << Ho << ", " << Wo << ", " << Co <<  " | " << Wob_reduced << std::endl;
+    // std::cout << "--------------------------\n";
 
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
@@ -1247,7 +1248,6 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
 
                                     // Accumualate on output elements
                                     (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                                    // std::cout << outputIndex << std::endl;
                                 }
                             }
                         }
@@ -1486,7 +1486,8 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
     break;
 
     default:
-        std::cerr << "Please insert a valid order for naive convolution\n";
+        std::cerr << "Please insert a valid order for memory blocking convolution";
+        std::cerr << "Order number: " << orderNumber << " is not valid\n";
         break;
     }
 
