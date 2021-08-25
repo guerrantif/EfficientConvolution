@@ -83,10 +83,10 @@ int main(int argc, char const *argv[]){
     std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
 
-    auto orderToTest = 1;
-    auto output = image.convolveMemoryBlocking(&kernel, stride, padding, 32, 32, 32, orderToTest);
-    auto output_opt = image.convolveMemoryBlocking(&kernel, stride, padding, 64, 64, 64, orderToTest);
-    std::cout << "Are they equal? " << (output == output_opt) << std::endl;
+    // auto orderToTest = 1;
+    // auto output = image.convolveMemoryBlocking(&kernel, stride, padding, 32, 32, 32, orderToTest);
+    // auto output_opt = image.convolveMemoryBlocking(&kernel, stride, padding, 64, 64, 64, orderToTest);
+    // std::cout << "Are they equal? " << (output == output_opt) << std::endl;
 
     // for(int i = 0; i < output.getSize(); i++) { std::cout << "Naive: " << output.getData()[i] << std::endl; }
     // for(int i = 0; i < output_opt.getSize(); i++) { std::cout << "Memb: " <<output_opt.getData()[i] << std::endl; }
