@@ -663,6 +663,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
 
     switch (orderNumber) {
     case 1: // Convolution (Order N. 1)
+    if constexpr (LLVM_NAIVE_1) __asm volatile (" #LLVM-MCA-BEGIN convolveNaive_1 ");
     for(auto i = 0; i < Ci; i++) {
         for(auto j = 0; j < Co; j++) {
             for(auto k = 0; k < Wo; k++) {
@@ -674,7 +675,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -684,9 +685,11 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
             // std::cout << "----- j\n";   
         }
     }
+    if constexpr (LLVM_NAIVE_1) __asm volatile (" #LLVM-MCA-END convolveNaive_1 ");
     break;
 
     case 2: // Convolution (Order N. 2)
+    if constexpr (LLVM_NAIVE_2) __asm volatile (" #LLVM-MCA-BEGIN convolveNaive_2 ");
     for(auto l = 0; l < Ho; l++) {
         for(auto n = 0; n < Hf; n++) {
             for(auto m = 0; m < Wf; m++) {
@@ -698,7 +701,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j* kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -707,9 +710,11 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
             }
         }
     }
+    if constexpr (LLVM_NAIVE_2) __asm volatile (" #LLVM-MCA-END convolveNaive_2 ");
     break;
 
     case 3: // Convolution (Order N. 3)
+    if constexpr (LLVM_NAIVE_3) __asm volatile (" #LLVM-MCA-BEGIN convolveNaive_3 ");
     for(auto l = 0; l < Ho; l++) {
         for(auto k = 0; k < Wo; k++) {
             for(auto j = 0; j < Co; j++) {
@@ -721,7 +726,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -730,9 +735,11 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
             }
         }
     }
+    if constexpr (LLVM_NAIVE_3) __asm volatile (" #LLVM-MCA-END convolveNaive_3 ");
     break;
 
     case 4: // Convolution (Order N. 4)
+    if constexpr (LLVM_NAIVE_4) __asm volatile (" #LLVM-MCA-BEGIN convolveNaive_4 ");
     for(auto k = 0; k < Wo; k++) {
         for(auto j = 0; j < Co; j++) {
             for(auto l = 0; l < Ho; l++) {
@@ -744,7 +751,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -753,9 +760,11 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
             }
         }
     }
+    if constexpr (LLVM_NAIVE_4) __asm volatile (" #LLVM-MCA-END convolveNaive_4 ");
     break;
 
     case 5: // Convolution (Order N. 5)
+    if constexpr (LLVM_NAIVE_5) __asm volatile (" #LLVM-MCA-BEGIN convolveNaive_5 ");
     for(auto k = 0; k < Wo; k++) {
         for(auto j = 0; j < Co; j++) {
             for(auto n = 0; n < Hf; n++) {
@@ -767,7 +776,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -776,9 +785,11 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
             }
         }
     }
+    if constexpr (LLVM_NAIVE_5) __asm volatile (" #LLVM-MCA-END convolveNaive_5 ");
     break;
 
     case 6: // Convolution (Order N. 6)
+    if constexpr (LLVM_NAIVE_6) __asm volatile (" #LLVM-MCA-BEGIN convolveNaive_6 ");
     for(auto n = 0; n < Hf; n++) {
         for(auto m = 0; m < Wf; m++) {
             for(auto i = 0; i < Ci; i++) {
@@ -790,7 +801,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                         }
@@ -799,9 +810,11 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
             }
         }
     }
+    if constexpr (LLVM_NAIVE_6) __asm volatile (" #LLVM-MCA-END convolveNaive_6 ");
     break;
 
     case 7: // Convolution (Order N. 7)
+    if constexpr (LLVM_NAIVE_7) __asm volatile (" #LLVM-MCA-BEGIN convolveNaive_7 ");
     for(auto n = 0; n < Hf; n++) {
         for(auto m = 0; m < Wf; m++) {
             for(auto i = 0; i < Ci; i++) {
@@ -813,7 +826,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
                             // Compute indexes
                             auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
                             auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
-                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (j * kernel->nChannels) + i;
+                            auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
                             // Accumualate on output elements
                             (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
                             
@@ -823,6 +836,7 @@ Tensor<T>& Tensor<T>::convolveNaive(const Kernel<T>* kernel, const uint32_t stri
             }
         }
     }
+    if constexpr (LLVM_NAIVE_7) __asm volatile (" #LLVM-MCA-END convolveNaive_7 ");
     break;
 
     default:

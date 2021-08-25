@@ -3,7 +3,7 @@ STD 		= c++17
 OPT 		= O3
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
 
-TARGETS 	= benchmark_Naive benchmark_NaiveOptimised benchmark_MemoryBlocking
+TARGETS 	=  benchmark_Naive benchmark_NaiveOptimised benchmark_MemoryBlocking 
 
 BIN_DIR 	= ./bin
 ASM_DIR 	= ./asm
@@ -16,21 +16,34 @@ INCLUDES	= -I$(INCLUDE_DIR)
 LDFLAGS		= -pthread
 
 SOURCES 	= $(shell find $(SRC_DIR) -name '*.cpp' | sort -k 1nr | cut -f2-)
+TESTS		= $(shell find $(TEST_DIR) -name '*.cpp' | sort -k 1nr | cut -f2-)
 OBJECTS 	= $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-ASMS 		= $(SOURCES:$(SRC_DIR)/%.cpp=$(ASM_DIR)/%.s)
+ASMS_SRC	= $(SOURCES:$(SRC_DIR)/%.cpp=$(ASM_DIR)/%.s)
+ASMS_TEST 	= $(TESTS:$(TEST_DIR)/%.cpp=$(ASM_DIR)/%.s)
 
 # COLORS
 GREEN="\e[92m"
 BLUE = '\033[34m'
 RESET_COLOR="\e[0m"
 
-all: dirs $(addprefix $(BIN_DIR)/, $(TARGETS)) $(ASMS)
+all: dirs $(addprefix $(BIN_DIR)/, $(TARGETS)) 
+asm: $(ASMS_SRC) $(ASMS_TEST) 
 
+debug:
+	@echo $(SOURCES)
+	@echo $(OBJECTS)
+	@echo $(ASMS_TEST)
+	@echo $(ASMS_SRC)
 
 dirs:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(ASM_DIR)
+
+# benchmark_StaticNaive
+$(BIN_DIR)/benchmark_StaticNaive: $(OBJECTS) $(BUILD_DIR)/benchmark_StaticNaive.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_StaticNaive built successfully." ${RESET_COLOR}
 
 # benchmark_NaiveOptimised
 $(BIN_DIR)/benchmark_NaiveOptimised: $(OBJECTS) $(BUILD_DIR)/benchmark_NaiveOptimised.o
@@ -63,8 +76,13 @@ $(BIN_DIR)/benchmark: $(OBJECTS) $(BUILD_DIR)/benchmark.o
 	@echo ${GREEN} "$(BIN_DIR)/benchmark built successfully." ${RESET_COLOR}
 	
 
-# Generate assembly code
+#### Generate assembly code ####
+# Source
 $(ASM_DIR)/%.s: $(SRC_DIR)/%.cpp
+	$(CXX) -S $^ -o $@ $(CXXFLAGS)
+	@echo ${BLUE} "$@ assembly code generated." ${RESET_COLOR}
+# Test 
+$(ASM_DIR)/%.s: $(TEST_DIR)/%.cpp
 	$(CXX) -S $^ -o $@ $(CXXFLAGS)
 	@echo ${BLUE} "$@ assembly code generated." ${RESET_COLOR}
 

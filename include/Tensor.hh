@@ -1,6 +1,7 @@
 #ifndef __TENSOR_HH__
 #define __TENSOR_HH__
 
+#include <flag.hh>
 #include <vector>
 #include <iostream>
 
@@ -9,8 +10,6 @@
 template <class T> 
 class Kernel;
 
-constexpr bool DO_PRINT = false;
-constexpr bool DO_TIME = true;
 
 namespace tensor{
     enum class init{
