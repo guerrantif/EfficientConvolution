@@ -73,12 +73,12 @@ int main(int argc, char const *argv[]){
     std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
 
-    // Check for equality
-    float executionTime, executionTimeOpt;
-    auto orderToTest = 6;
-    auto output = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTime);
-    auto output_opt = image.convolveNaiveOptimised(&kernel, stride, padding, orderToTest, &executionTimeOpt);
-    std::cout << "Are they equal? " << (output == output_opt) << std::endl;
-    std::cout << "__________________________________________________________\n";   
+    // // Check for equality
+    // float executionTime, executionTimeOpt;
+    // auto orderToTest = ORDER_NUMBER;
+    // auto output = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTime);
+    // auto output_opt = image.convolveNaiveOptimised(&kernel, stride, padding, orderToTest, &executionTimeOpt);
+    // std::cout << "Are they equal? " << (output == output_opt) << std::endl;
+    // std::cout << "__________________________________________________________\n";   
     return 0;
 }

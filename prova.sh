@@ -15,9 +15,15 @@ declare -a arguments=( # (Image size, Image depth, Kernel size, N. Kernel, Cib s
 
 )
 
-O="2 1"
+## Prova 0 
+# for ARG in "${arguments[@]}"
+# do
+#     ./bin/benchmark_MemoryBlocking ${ARG} "-1" "-1" "-1" "1" "2"
+# done
 
-for ARG in "${arguments[@]}"
-do
-    ./bin/benchmark_MemoryBlocking ${ARG} "-1" "-1" "-1" "1" "2"
-done
+## Prova 1
+ARG="14 256 3 1024"
+N_REPETITIONS="5"
+./bin/benchmark_Naive ${ARG} 2 ${N_REPETITIONS}
+./bin/benchmark_Naive ${ARG} 20 ${N_REPETITIONS}
+./bin/benchmark_MemoryBlocking ${ARG} 8 -1 8 2 ${N_REPETITIONS}
