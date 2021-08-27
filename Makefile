@@ -1,9 +1,10 @@
 CXX 		= icpx
 STD 		= c++17
 OPT 		= O3
-CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native 
+EXTRA_FLAG	= -no-vec
+CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native # ${EXTRA_FLAG}
 
-TARGETS 	=  benchmark_Naive benchmark_NaiveOptimised benchmark_MemoryBlocking 
+TARGETS 	=  benchmark_Naive benchmark_NaiveOptimised benchmark_MemoryBlocking benchmark_NaiveKernelNKernels
 
 BIN_DIR 	= ./bin
 ASM_DIR 	= ./asm
@@ -39,6 +40,12 @@ dirs:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(ASM_DIR)
+
+
+# benchmark_NaiveKernelNKernels
+$(BIN_DIR)/benchmark_NaiveKernelNKernels: $(OBJECTS) $(BUILD_DIR)/benchmark_NaiveKernelNKernels.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_NaiveKernelNKernels built successfully." ${RESET_COLOR}
 
 # benchmark_StaticNaive
 $(BIN_DIR)/benchmark_StaticNaive: $(OBJECTS) $(BUILD_DIR)/benchmark_StaticNaive.o

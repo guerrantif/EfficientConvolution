@@ -70,6 +70,8 @@ public:
 
     // Naive convolution
     Tensor<T>& convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
+    Tensor<T>& convolveNaiveKernelNChannels(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
+    Tensor<T>& convolveNaiveKernelNKernels(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
      // Naive optimised convolution
     Tensor<T>& convolveNaiveOptimised(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
     // Memory-blocking convolution
