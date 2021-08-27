@@ -4,7 +4,7 @@ OPT 		= O3
 EXTRA_FLAG	= -no-vec
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native # ${EXTRA_FLAG}
 
-TARGETS 	=  benchmark_Naive benchmark_NaiveOptimised benchmark_MemoryBlocking benchmark_NaiveKernelNKernels
+TARGETS 	=  benchmark_MemoryBlocking benchmark_NaiveKernelNKernels benchmark_NaiveKernelNChannels
 
 BIN_DIR 	= ./bin
 ASM_DIR 	= ./asm
@@ -46,6 +46,11 @@ dirs:
 $(BIN_DIR)/benchmark_NaiveKernelNKernels: $(OBJECTS) $(BUILD_DIR)/benchmark_NaiveKernelNKernels.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 	@echo ${GREEN} "$(BIN_DIR)/benchmark_NaiveKernelNKernels built successfully." ${RESET_COLOR}
+
+# benchmark_NaiveKernelNChannels
+$(BIN_DIR)/benchmark_NaiveKernelNChannels: $(OBJECTS) $(BUILD_DIR)/benchmark_NaiveKernelNChannels.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_NaiveKernelNChannels built successfully." ${RESET_COLOR}
 
 # benchmark_StaticNaive
 $(BIN_DIR)/benchmark_StaticNaive: $(OBJECTS) $(BUILD_DIR)/benchmark_StaticNaive.o
