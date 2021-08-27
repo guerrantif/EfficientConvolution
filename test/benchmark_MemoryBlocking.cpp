@@ -49,8 +49,8 @@ int main(int argc, char const *argv[]){
 
     typedef float DType;
 
-    Tensor<DType> image{Hi, Wi, Ci,tensor::init::RAND};         // H, W, C
-    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::RAND};    // H, W, E, C
+    Tensor<DType> image{Hi, Wi, Ci,tensor::init::INCR};         // H, W, C
+    Kernel<DType> kernel{Hf, Wf, Ef, Cf,tensor::init::INCR};    // H, W, E, C
 
     // Convolution paramters
     auto stride = 1;
@@ -82,6 +82,14 @@ int main(int argc, char const *argv[]){
     std::cout << "Execution time (Minimum):\t" << stat.getMin() << " ms\n";
     std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
+
+    // auto orderToTest = 2;
+    // auto output = image.convolveNaive(&kernel, stride, padding, orderToTest);
+    // auto output_opt = image.convolveMemoryBlocking(&kernel, stride, padding, -1, -1, -1, orderToTest);
+    // std::cout << "Are they equal? " << (output == output_opt) << std::endl;
+
+    // for(int i = 0; i < output.getSize(); i++) { std::cout << "Naive: " << output.getData()[i] << std::endl; }
+    // for(int i = 0; i < output_opt.getSize(); i++) { std::cout << "Memb: " <<output_opt.getData()[i] << std::endl; }
     std::cout << "__________________________________________________________\n";   
     return 0;
 }

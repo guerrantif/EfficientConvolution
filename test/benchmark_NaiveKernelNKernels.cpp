@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]){
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveNaive(&kernel, stride, padding, ORDER_NUMBER, &executionTime);
+        auto output = image.convolveNaiveKernelNKernels(&kernel, stride, padding, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
     }
     chronometer.stop();
@@ -72,13 +72,7 @@ int main(int argc, char const *argv[]){
     std::cout << "Execution time (Minimum):\t" << stat.getMin() << " ms\n";
     std::cout << "Execution time (Division):\t" << chronometer.getTime() / float(N_TESTS) << " ms\n";
     }
-
-    // // Check for equality
-    // float executionTime, executionTimeOpt;
-    // auto orderToTest = 7;
-    // auto output = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTime);
-    // auto output_opt = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTimeOpt);
-    // std::cout << "Are they equal? " << (output == output_opt) << std::endl;
+    
     std::cout << "__________________________________________________________\n";   
     return 0;
 }

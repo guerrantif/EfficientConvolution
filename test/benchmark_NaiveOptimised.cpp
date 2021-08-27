@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]){
     Statistics stat;
     for(auto i = 0; i < N_TESTS; i++) {
         float executionTime = 0.0;
-        auto output = image.convolveNaive(&kernel, stride, padding, ORDER_NUMBER, &executionTime);
+        auto output = image.convolveNaiveOptimised(&kernel, stride, padding, ORDER_NUMBER, &executionTime);
         stat.addToCollection(executionTime);
     }
     chronometer.stop();
@@ -75,10 +75,10 @@ int main(int argc, char const *argv[]){
 
     // // Check for equality
     // float executionTime, executionTimeOpt;
-    // auto orderToTest = 7;
+    // auto orderToTest = ORDER_NUMBER;
     // auto output = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTime);
-    // auto output_opt = image.convolveNaive(&kernel, stride, padding, orderToTest, &executionTimeOpt);
+    // auto output_opt = image.convolveNaiveOptimised(&kernel, stride, padding, orderToTest, &executionTimeOpt);
     // std::cout << "Are they equal? " << (output == output_opt) << std::endl;
-    std::cout << "__________________________________________________________\n";   
+    // std::cout << "__________________________________________________________\n";   
     return 0;
 }

@@ -1,6 +1,7 @@
 #ifndef __TENSOR_HH__
 #define __TENSOR_HH__
 
+#include <flag.hh>
 #include <vector>
 #include <iostream>
 
@@ -9,8 +10,6 @@
 template <class T> 
 class Kernel;
 
-constexpr bool DO_PRINT = false;
-constexpr bool DO_TIME = true;
 
 namespace tensor{
     enum class init{
@@ -71,6 +70,10 @@ public:
 
     // Naive convolution
     Tensor<T>& convolveNaive(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
+    Tensor<T>& convolveNaiveKernelNChannels(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
+    Tensor<T>& convolveNaiveKernelNKernels(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
+     // Naive optimised convolution
+    Tensor<T>& convolveNaiveOptimised(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, const uint32_t orderNumber, float* executionTime =nullptr) const;
     // Memory-blocking convolution
     Tensor<T>& convolveMemoryBlocking(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, 
     const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t orderNumber, float* executionTime =nullptr) const;
