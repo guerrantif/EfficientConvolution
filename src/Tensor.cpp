@@ -1508,11 +1508,11 @@ const int32_t Cib_divider, const int32_t Cob_divider, const int32_t Wob_divider,
     uint32_t n_Wob_blocks = ((Wo % Wob) == 0) ? (Wo / Wob) : ((Wo / Wob) + 1);
     uint32_t Wob_reduced = Wob;
 
-    std::cout << "Cob: " << Cob << " | Cib: " << Cib << " | Wob: " << Wob << std::endl;
-    std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | n_Cib_blocks: " << n_Cib_blocks << " | n_Wob_blocks: " << n_Wob_blocks << std::endl;
-    std::cout << "Wob_redcued: " << Wob_reduced << std::endl;
-    std::cout << Ho << ", " << Wo << ", " << Co <<  " | " << Wob_reduced << std::endl;
-    std::cout << "--------------------------\n";
+    // std::cout << "Cob: " << Cob << " | Cib: " << Cib << " | Wob: " << Wob << std::endl;
+    // std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | n_Cib_blocks: " << n_Cib_blocks << " | n_Wob_blocks: " << n_Wob_blocks << std::endl;
+    // std::cout << "Wob_redcued: " << Wob_reduced << std::endl;
+    // std::cout << Ho << ", " << Wo << ", " << Co <<  " | " << Wob_reduced << std::endl;
+    // std::cout << "--------------------------\n";
 
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
