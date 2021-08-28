@@ -1473,7 +1473,7 @@ Tensor<T>& Tensor<T>::convolveNaiveOptimised(const Kernel<T>* kernel, const uint
 // Convolution operation (Memory-blocking)
 template<class T>
 Tensor<T>& Tensor<T>::convolveMemoryBlocking(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding,
-const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t orderNumber, float* executionTime) const {
+const int32_t Cib_divider, const int32_t Cob_divider, const int32_t Wob_divider, const uint32_t orderNumber, float* executionTime) const {
     // Check for dimensions
     assert(this->nChannels == kernel->nChannels);
 
@@ -1493,23 +1493,26 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
     // Compute blocking dimensions
     // Ci = 32 
     // Cib_ = 8 
-    uint32_t Cib = ((Cib_ > Ci) || (Cib_ <= 0)) ? Ci : Cib_;
+    // uint32_t Cib = ((Cib_ > Ci) || (Cib_ <= 0)) ? Ci : Cib_;
+    uint32_t Cib = (Cib_divider > Ci) ? 1 : int(Ci / Cib_divider);
     uint32_t n_Cib_blocks = ((Ci % Cib) == 0) ? (Ci / Cib) : ((Ci / Cib) + 1);
     uint32_t Cib_reduced = Cib;
 
-    uint32_t Cob = ((Cob_ > Co) || (Cob_ <= 0)) ? Co : Cob_;
+    // uint32_t Cob = ((Cob_ > Co) || (Cob_ <= 0)) ? Co : Cob_;
+    uint32_t Cob = (Cob_divider > Co) ? 1 : int(Co / Cob_divider);
     uint32_t n_Cob_blocks = ((Co % Cob) == 0) ? (Co / Cob) : ((Co / Cob) + 1);
     uint32_t Cob_reduced = Cob;
 
-    uint32_t Wob = ((Wob_ > Wo) || (Wob_ <= 0)) ? Wo : Wob_;
+    // uint32_t Wob = ((Wob_ > Wo) || (Wob_ <= 0)) ? Wo : Wob_;
+    uint32_t Wob = (Wob_divider > Wo) ? 1 :int(Wo / Wob_divider);
     uint32_t n_Wob_blocks = ((Wo % Wob) == 0) ? (Wo / Wob) : ((Wo / Wob) + 1);
     uint32_t Wob_reduced = Wob;
 
-    // std::cout << "Cob: " << Cob << " | Cib: " << Cib << " | Wob: " << Wob << std::endl;
-    // std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | n_Cib_blocks: " << n_Cib_blocks << " | n_Wob_blocks: " << n_Wob_blocks << std::endl;
-    // std::cout << "Wob_redcued: " << Wob_reduced << std::endl;
-    // std::cout << Ho << ", " << Wo << ", " << Co <<  " | " << Wob_reduced << std::endl;
-    // std::cout << "--------------------------\n";
+    std::cout << "Cob: " << Cob << " | Cib: " << Cib << " | Wob: " << Wob << std::endl;
+    std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | n_Cib_blocks: " << n_Cib_blocks << " | n_Wob_blocks: " << n_Wob_blocks << std::endl;
+    std::cout << "Wob_redcued: " << Wob_reduced << std::endl;
+    std::cout << Ho << ", " << Wo << ", " << Co <<  " | " << Wob_reduced << std::endl;
+    std::cout << "--------------------------\n";
 
     // Create the output
     Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
@@ -1535,26 +1538,26 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
                             for(auto m = 0; m < Wf; m++) {
                                 for(auto n = 0; n < Hf; n++) {
                                     // Input index
-                                    auto Hi_idx = (l*stride) + n;
-                                    auto Wi_idx = (k_*stride) + kk + m;
-                                    auto Ci_idx = ii;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
+                                    const auto  Hi_idx = (l*stride) + n;
+                                    const auto  Wi_idx = (k_*stride) + kk + m;
+                                    const auto  Ci_idx = ii;
+                                    const auto  inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
                                     // Output index
-                                    auto Ho_idx = l;
-                                    auto Wo_idx = (k_ * Wob) + kk;
-                                    auto Co_idx = jj;
-                                    auto outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
+                                    const auto  Ho_idx = l;
+                                    const auto  Wo_idx = (k_ * Wob) + kk;
+                                    const auto  Co_idx = jj;
+                                    const auto  outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
                                     // if(j_ == 0) std::cout << outputIndex << ", " << Wo_idx << std::endl;
                                     // if(k_ == 1) std::cout << kk <<std::endl;
                                     // if(j_== 0 && Ho_idx == 1 && Wo_idx==1 && Co_idx==0) std::cout << "eccolo: " << outputIndex << std::endl;
                                     // Kernel index
-                                    auto Hf_idx = n;
-                                    auto Wf_idx = m;
-                                    auto Ef_idx = jj;
-                                    auto Cf_idx = ii;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
+                                    const auto  Hf_idx = n;
+                                    const auto  Wf_idx = m;
+                                    const auto  Ef_idx = jj;
+                                    const auto  Cf_idx = ii;
+                                    const auto  Ef_offset = j_ * Hf * Wf * Cob * Ci;
+                                    const auto  Cf_offset = i_ * Hf * Wf * Cob * Cib;
+                                    const auto  kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
 
                                     // Accumualate on output elements
                                     (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
@@ -1576,12 +1579,12 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
     for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
     if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib); } else { Cib_reduced = Cib; } // Handling the remaining block
         for(auto l = 0; l < Ho; l++) {
-            for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
-            if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
-                for(auto n = 0; n < Hf; n++) {
-                    for(auto m = 0; m < Wf; m++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto ii = 0; ii < Cib_reduced; ii++) {                  /* lo scambio       */
+                        for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                        if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
                             for(auto kk = 0; kk < Wob_reduced; kk++) {              /* Qui c'è stato    */
-                        for(auto ii = 0; ii < Cib_reduced; ii++) {                  /* lo scambio       */
                                 for(auto jj = 0; jj < Cob_reduced; jj++) {
                                     // Input index
                                     const auto Hi_idx = (l*stride) + n;
@@ -1623,34 +1626,33 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
     for(auto j_ = 0; j_ < n_Cob_blocks; j_++) {
     if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
     for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
-    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib); } // Handling the remaining block
-        for(auto l = 0; l < Ho; l++) {
-            for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
-            if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
-                for(auto kk = 0; kk < Wob_reduced; kk++) {
-                    for(auto jj = 0; jj < Cob_reduced; jj++) {
-                        for(auto n = 0; n < Hf; n++) {
-                            for(auto m = 0; m < Wf; m++) {
-                                for(auto ii = 0; ii < Cib_reduced; ii++) {
+    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib); } else { Cib_reduced = Cib; } // Handling the remaining block
+        for(auto n = 0; n < Hf; n++) {
+            for(auto m = 0; m < Wf; m++) {
+                for(auto ii = 0; ii < Cib_reduced; ii++) {
+                    for(auto l = 0; l < Ho; l++) {
+                        for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                        if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
+                            for(auto kk = 0; kk < Wob_reduced; kk++) {
+                                for(auto jj = 0; jj < Cob_reduced; jj++) {
                                      // Input index
-                                    auto Hi_idx = (l*stride) + n;
-                                    auto Wi_idx = (k_*stride) + kk + m;
-                                    if(Wi_idx > (Wi-1)) std::cout << "Wi_idx: " << Wi_idx << std::endl;
-                                    auto Ci_idx = ii;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
+                                    const auto Hi_idx = (l*stride) + n;
+                                    const auto  Wi_idx = (k_*stride) + kk + m;
+                                    const auto  Ci_idx = ii;
+                                    const auto  inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
                                     // Output index
-                                    auto Ho_idx = l;
-                                    auto Wo_idx = (k_ * Wob) + kk;
-                                    auto Co_idx = jj;
-                                    auto outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
+                                    const auto  Ho_idx = l;
+                                    const auto  Wo_idx = (k_ * Wob) + kk;
+                                    const auto  Co_idx = jj;
+                                    const auto  outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
                                     // Kernel index
-                                    auto Hf_idx = n;
-                                    auto Wf_idx = m;
-                                    auto Ef_idx = jj;
-                                    auto Cf_idx = ii;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
+                                    const auto  Hf_idx = n;
+                                    const auto  Wf_idx = m;
+                                    const auto  Ef_idx = jj;
+                                    const auto  Cf_idx = ii;
+                                    const auto  Ef_offset = j_ * Hf * Wf * Cob * Ci;
+                                    const auto  Cf_offset = i_ * Hf * Wf * Cob * Cib;
+                                    const auto  kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
 
                                     // Accumualate on output elements
                                     (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
@@ -1670,32 +1672,32 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
     if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
     for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
     if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib); } else { Cib_reduced = Cib; } // Handling the remaining block
-        for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
-        if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
-            for(auto kk = 0; kk < Wob_reduced; kk++) {
-                for(auto jj = 0; jj < Cob_reduced; jj++) {
-                    for(auto l = 0; l < Ho; l++) {
-                        for(auto n = 0; n < Hf; n++) {
-                            for(auto m = 0; m < Wf; m++) {
-                                for(auto ii = 0; ii < Cib_reduced; ii++) {
+        for(auto l = 0; l < Ho; l++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                    if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
+                        for(auto kk = 0; kk < Wob_reduced; kk++) {
+                            for(auto ii = 0; ii < Cib_reduced; ii++) {
+                                for(auto jj = 0; jj < Cob_reduced; jj++) {
                                     // Input index
-                                    auto Hi_idx = (l*stride) + n;
-                                    auto Wi_idx = (k_*stride) + kk + m;
-                                    auto Ci_idx = ii;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
+                                    const auto Hi_idx = (l*stride) + n;
+                                    const auto Wi_idx = (k_*stride) + kk + m;
+                                    const auto Ci_idx = ii;
+                                    const auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
                                     // Output index
-                                    auto Ho_idx = l;
-                                    auto Wo_idx = (k_ * Wob) + kk;
-                                    auto Co_idx = jj;
-                                    auto outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);// if(j_== 0 && Ho_idx == 1 && Wo_idx==1 && Co_idx==0) std::cout << "eccolo: " << outputIndex << std::endl;
+                                    const auto Ho_idx = l;
+                                    const auto Wo_idx = (k_ * Wob) + kk;
+                                    const auto Co_idx = jj;
+                                    const auto outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);// if(j_== 0 && Ho_idx == 1 && Wo_idx==1 && Co_idx==0) std::cout << "eccolo: " << outputIndex << std::endl;
                                     // Kernel index
-                                    auto Hf_idx = n;
-                                    auto Wf_idx = m;
-                                    auto Ef_idx = jj;
-                                    auto Cf_idx = ii;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
+                                    const auto Hf_idx = n;
+                                    const auto Wf_idx = m;
+                                    const auto Ef_idx = jj;
+                                    const auto Cf_idx = ii;
+                                    const auto Ef_offset = j_ * Hf * Wf * Cob * Ci;
+                                    const auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
+                                    const auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
 
                                     // Accumualate on output elements
                                     (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
@@ -1715,122 +1717,32 @@ const int32_t Cib_, const int32_t Cob_, const int32_t Wob_, const uint32_t order
     if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
     for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
     if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib); } else { Cib_reduced = Cib; } // Handling the remaining block
-        for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
-        if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
-            for(auto kk = 0; kk < Wob_reduced; kk++) {
-                for(auto jj = 0; jj < Cob_reduced; jj++) {
-                    for(auto n = 0; n < Hf; n++) {
-                        for(auto m = 0; m < Wf; m++) {
-                            for(auto ii = 0; ii < Cib_reduced; ii++) {
-                                for(auto l = 0; l < Ho; l++) {
-                                     // Input index
-                                    auto Hi_idx = (l*stride) + n;
-                                    auto Wi_idx = (k_*stride) + kk + m;
-                                    auto Ci_idx = ii;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
-                                    // Output index
-                                    auto Ho_idx = l;
-                                    auto Wo_idx = (k_ * Wob) + kk;
-                                    auto Co_idx = jj;
-                                    auto outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
-                                    // Kernel index
-                                    auto Hf_idx = n;
-                                    auto Wf_idx = m;
-                                    auto Ef_idx = jj;
-                                    auto Cf_idx = ii;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
-
-                                    // Accumualate on output elements
-                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    }
-    break;
-
-    case 6: // Convolution (Order N. 6)
-    for(auto j_ = 0; j_ < n_Cob_blocks; j_++) {
-    if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
-    for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
-    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib); } else {Cib_reduced = Cib; }// Handling the remaining block
-        for(auto n = 0; n < Hf; n++) {
-            for(auto m = 0; m < Wf; m++) {
-                for(auto ii = 0; ii < Cib_reduced; ii++) {
+        for(auto l = 0; l < Ho; l++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
                     for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
                     if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
                         for(auto kk = 0; kk < Wob_reduced; kk++) {
                             for(auto jj = 0; jj < Cob_reduced; jj++) {
-                                for(auto l = 0; l < Ho; l++) {
+                                for(auto ii = 0; ii < Cib_reduced; ii++) {
                                      // Input index
-                                    auto Hi_idx = (l*stride) + n;
-                                    auto Wi_idx = (k_*stride) + kk + m;
-                                    auto Ci_idx = ii;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
+                                    const auto  Hi_idx = (l*stride) + n;
+                                    const auto  Wi_idx = (k_*stride) + kk + m;
+                                    const auto  Ci_idx = ii;
+                                    const auto  inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
                                     // Output index
-                                    auto Ho_idx = l;
-                                    auto Wo_idx = (k_ * Wob) + kk;
-                                    auto Co_idx = jj;
-                                    auto outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
+                                    const auto  Ho_idx = l;
+                                    const auto  Wo_idx = (k_ * Wob) + kk;
+                                    const auto  Co_idx = jj;
+                                    const auto  outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
                                     // Kernel index
-                                    auto Hf_idx = n;
-                                    auto Wf_idx = m;
-                                    auto Ef_idx = jj;
-                                    auto Cf_idx = ii;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
-
-                                    // Accumualate on output elements
-                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    }
-    break;
-
-    case 7: // Convolution (Order N. 7)
-    for(auto j_ = 0; j_ < n_Cob_blocks; j_++) {
-    if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
-    for(auto i_ = 0; i_ < n_Cib_blocks; i_++) {
-    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib); } else {Cib_reduced = Cib; }// Handling the remaining block
-        for(auto n = 0; n < Hf; n++) {
-            for(auto m = 0; m < Wf; m++) {
-                for(auto ii = 0; ii < Cib_reduced; ii++) {
-                    for(auto l = 0; l < Ho; l++) {
-                        for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
-                        if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
-                            for(auto kk = 0; kk < Wob_reduced; kk++) {
-                                for(auto jj = 0; jj < Cob_reduced; jj++) {
-                                    // Input index
-                                    auto Hi_idx = (l*stride) + n;
-                                    auto Wi_idx = (k_*stride) + kk + m;
-                                    auto Ci_idx = ii;
-                                    auto inputIndex = (i_*Hi*Wi*Cib) + ((Hi_idx * this->width * Cib_reduced) + (Wi_idx * Cib_reduced) + Ci_idx);
-                                    // Output index
-                                    auto Ho_idx = l;
-                                    auto Wo_idx = (k_ * Wob) + kk;
-                                    auto Co_idx = jj;
-                                    auto outputIndex = (j_*Ho*Wo*Cob) + ((Ho_idx * Wo * Cob_reduced) + (Wo_idx * Cob_reduced) + Co_idx);
-                                    // Kernel index
-                                    auto Hf_idx = n;
-                                    auto Wf_idx = m;
-                                    auto Ef_idx = jj;
-                                    auto Cf_idx = ii;
-                                    auto Ef_offset = j_ * Hf * Wf * Cob * Ci;
-                                    auto Cf_offset = i_ * Hf * Wf * Cob * Cib;
-                                    auto kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
+                                    const auto  Hf_idx = n;
+                                    const auto  Wf_idx = m;
+                                    const auto  Ef_idx = jj;
+                                    const auto  Cf_idx = ii;
+                                    const auto  Ef_offset = j_ * Hf * Wf * Cob * Ci;
+                                    const auto  Cf_offset = i_ * Hf * Wf * Cob * Cib;
+                                    const auto  kernelIndex = Cf_offset + Ef_offset + (Hf_idx * Wf * Cob_reduced) + (Wf_idx * Cob_reduced) + (Cf_idx * Hf * Wf * Cob_reduced) +  Ef_idx;
 
                                     // Accumualate on output elements
                                     (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
