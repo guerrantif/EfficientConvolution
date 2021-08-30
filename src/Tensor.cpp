@@ -297,7 +297,7 @@ bool Tensor<T>::operator==(const Tensor<T>& other) {
     if (!(this->shape == other.shape)) return false;
     for(auto i = 0; i < this->size; i++) {
         // std::cout << this->data[i] << " ?= " << other.data[i] << std::endl;
-        if (abs(this->data[i] - other.data[i]) > 0.001) return false;
+        if (abs(this->data[i] - other.data[i]) > 0.01) return false;
     }
     return true;
 }
@@ -1775,6 +1775,248 @@ const int32_t Cib_divider, const int32_t Cob_divider, const int32_t Wob_divider,
     return *output;
 }
 
+// Convolution operation (Memory-blocking Soft)
+template<class T>
+Tensor<T>& Tensor<T>::convolveMemoryBlockingSoft(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding,
+const int32_t Cib_divider, const int32_t Cob_divider, const int32_t Wob_divider, const uint32_t orderNumber, float* executionTime) const {
+    // Check for dimensions
+    assert(this->nChannels == kernel->nChannels);
+
+    // Compute output dimensions
+    uint32_t Eo = this->nElements;
+    uint32_t Co = kernel->nElements;
+    uint32_t Ho = (this->height - kernel->height + 2*padding) / stride + 1;
+    uint32_t Wo = (this->width - kernel->width + 2*padding) / stride + 1;
+
+    uint32_t Ci = this->nChannels;
+    uint32_t Hi = this->height;
+    uint32_t Wi = this->width;
+
+    uint32_t Hf = kernel->height;
+    uint32_t Wf = kernel->width;
+
+    // Compute blocking dimensions
+    // Ci = 32 
+    // Cib_ = 8 
+    // uint32_t Cib = ((Cib_ > Ci) || (Cib_ <= 0)) ? Ci : Cib_;
+    uint32_t Cib = (Cib_divider > Ci) ? 1 : int(Ci / Cib_divider);
+    uint32_t n_Cib_blocks = ((Ci % Cib) == 0) ? (Ci / Cib) : ((Ci / Cib) + 1);
+    uint32_t Cib_reduced = Cib; 
+
+
+    // uint32_t Cob = ((Cob_ > Co) || (Cob_ <= 0)) ? Co : Cob_;
+    uint32_t Cob = (Cob_divider > Co) ? 1 : int(Co / Cob_divider);
+    uint32_t n_Cob_blocks = ((Co % Cob) == 0) ? (Co / Cob) : ((Co / Cob) + 1);
+    uint32_t Cob_reduced = Cob;
+
+    // uint32_t Wob = ((Wob_ > Wo) || (Wob_ <= 0)) ? Wo : Wob_;
+    uint32_t Wob = (Wob_divider > Wo) ? 1 : int(Wo / Wob_divider);
+    uint32_t n_Wob_blocks = ((Wo % Wob) == 0) ? (Wo / Wob) : ((Wo / Wob) + 1);
+    uint32_t Wob_reduced = Wob;
+
+    // std::cout << "Cob: " << Cob << " | Cib: " << Cib << " | Wob: " << Wob << std::endl;
+    // std::cout << "n_Cob_blocks: " << n_Cob_blocks << " | n_Cib_blocks: " << n_Cib_blocks << " | n_Wob_blocks: " << n_Wob_blocks << std::endl;
+    // std::cout << "Wob_redcued: " << Wob_reduced << std::endl;
+    // std::cout << Ho << ", " << Wo << ", " << Co <<  " | " << Wob_reduced << std::endl;
+    // std::cout << "--------------------------\n";
+
+    // Create the output
+    Tensor<T>* output = new Tensor(Ho, Wo, Co, tensor::init::ZEROS);
+
+    Chronometer c;
+    if constexpr (DO_TIME){
+        c.start();
+    }
+
+    switch (orderNumber) {
+
+    case 1:
+    for(auto j_ = 0; j_ < n_Cob_blocks; j_++){
+    if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
+    for(auto i_ = 0; i_ < n_Cib_blocks; i_++){
+    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib);} else { Cib_reduced = Cib; } // Handling the remaining block
+        for(auto i = i_*Cib; i < (i_*Cib + Cib_reduced); i++) {
+            for(auto j = j_*Cob; j < (j_*Cob + Cob_reduced); j++) {
+                for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
+                    for(auto k = k_; k < (k_*Wob + Wob_reduced); k++) {
+                        for(auto l = 0; l < Ho; l++) {
+                            for(auto m = 0; m < Wf; m++) {
+                                for(auto n = 0; n < Hf; n++) {
+                                    auto Hi_idx = (l*stride) + n;
+                                    auto Wi_idx = (k*stride) + m;
+                                    // Compute indexes
+                                    auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                                    auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                                    auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
+                                    // Accumualate on output elements
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // std::cout << "i: " << i << " | i_*Cib: " << i_*Cib << " | Cib: " << Cib << std::endl;
+                                    // std::cout << "j: " << j << " | j_*Cob: " << j_*Cob << std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    }
+    break;
+
+    case 2:
+    for(auto j_ = 0; j_ < n_Cob_blocks; j_++){
+    if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
+    for(auto i_ = 0; i_ < n_Cib_blocks; i_++){
+    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib);} else { Cib_reduced = Cib; } // Handling the remaining block
+        for(auto l = 0; l < Ho; l++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto i = i_*Cib; i < (i_*Cib + Cib_reduced); i++) {
+                        for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                        if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
+                            for(auto k = k_; k < (k_*Wob + Wob_reduced); k++) {
+                                for(auto j = j_*Cob; j < (j_*Cob + Cob_reduced); j++) {
+                                    auto Hi_idx = (l*stride) + n;
+                                    auto Wi_idx = (k*stride) + m;
+                                    // Compute indexes
+                                    auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                                    auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                                    auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
+                                    // Accumualate on output elements
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // std::cout << "i: " << i << " | i_*Cib: " << i_*Cib << " | Cib: " << Cib << std::endl;
+                                    // std::cout << "j: " << j << " | j_*Cob: " << j_*Cob << std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    }
+    break;
+
+    case 3: // Convolution (Order N. 3)
+    for(auto j_ = 0; j_ < n_Cob_blocks; j_++){
+    if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
+    for(auto i_ = 0; i_ < n_Cib_blocks; i_++){
+    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib);} else { Cib_reduced = Cib; } // Handling the remaining block
+        for(auto n = 0; n < Hf; n++) {
+            for(auto m = 0; m < Wf; m++) {
+                for(auto i = i_*Cib; i < (i_*Cib + Cib_reduced); i++) {
+                    for(auto l = 0; l < Ho; l++) {
+                        for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                        if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
+                            for(auto k = k_; k < (k_*Wob + Wob_reduced); k++) {
+                                for(auto j = j_*Cob; j < (j_*Cob + Cob_reduced); j++) {
+                                    auto Hi_idx = (l*stride) + n;
+                                    auto Wi_idx = (k*stride) + m;
+                                    // Compute indexes
+                                    auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                                    auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                                    auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
+                                    // Accumualate on output elements
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // std::cout << "i: " << i << " | i_*Cib: " << i_*Cib << " | Cib: " << Cib << std::endl;
+                                    // std::cout << "j: " << j << " | j_*Cob: " << j_*Cob << std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    }
+    break;
+
+    case 4: // Convolution (Order N. 4)
+    for(auto j_ = 0; j_ < n_Cob_blocks; j_++){
+    if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
+    for(auto i_ = 0; i_ < n_Cib_blocks; i_++){
+    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib);} else { Cib_reduced = Cib; } // Handling the remaining block
+        for(auto l = 0; l < Ho; l++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                    if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
+                        for(auto k = k_; k < (k_*Wob + Wob_reduced); k++) {
+                            for(auto i = i_*Cib; i < (i_*Cib + Cib_reduced); i++) {
+                                for(auto j = j_*Cob; j < (j_*Cob + Cob_reduced); j++) {
+                                    auto Hi_idx = (l*stride) + n;
+                                    auto Wi_idx = (k*stride) + m;
+                                    // Compute indexes
+                                    auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                                    auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                                    auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
+                                    // Accumualate on output elements
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // std::cout << "i: " << i << " | i_*Cib: " << i_*Cib << " | Cib: " << Cib << std::endl;
+                                    // std::cout << "j: " << j << " | j_*Cob: " << j_*Cob << std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    }
+    break;
+
+    case 5: // Convolution (Order N. 5)
+    for(auto j_ = 0; j_ < n_Cob_blocks; j_++){
+    if(((Co % Cob) != 0) && (j_ == (n_Cob_blocks-1))) { Cob_reduced = (Co % Cob); } // Handling the remaining block
+    for(auto i_ = 0; i_ < n_Cib_blocks; i_++){
+    if(((Ci % Cib) != 0) && (i_ == (n_Cib_blocks-1))) { Cib_reduced = (Ci % Cib);} else { Cib_reduced = Cib; } // Handling the remaining block
+        for(auto l = 0; l < Ho; l++) {
+            for(auto n = 0; n < Hf; n++) {
+                for(auto m = 0; m < Wf; m++) {
+                    for(auto k_ = 0; k_ < n_Wob_blocks; k_++) {
+                    if(((Wo % Wob) != 0) && (k_ == (n_Wob_blocks-1))) { Wob_reduced = (Wo % Wob); } else { Wob_reduced = Wob; } // Handling the remaining block
+                        for(auto k = k_; k < (k_*Wob + Wob_reduced); k++) {
+                            for(auto j = j_*Cob; j < (j_*Cob + Cob_reduced); j++) {
+                                for(auto i = i_*Cib; i < (i_*Cib + Cib_reduced); i++) {
+                                    auto Hi_idx = (l*stride) + n;
+                                    auto Wi_idx = (k*stride) + m;
+                                    // Compute indexes
+                                    auto inputIndex = (Hi_idx * this->width * this->nChannels) + (Wi_idx * this->nChannels) + i;
+                                    auto outputIndex = (l * output->width * output->nChannels) + (k * output->nChannels) + j;
+                                    auto kernelIndex = (n * kernel->width * kernel->nElements * kernel->nChannels) + (m * kernel->nElements * kernel->nChannels) + (i * kernel->nElements) + j;
+                                    // Accumualate on output elements
+                                    (*output)[outputIndex] += (*this)[inputIndex] * (*kernel)[kernelIndex];
+                                    // std::cout << "i: " << i << " | i_*Cib: " << i_*Cib << " | Cib: " << Cib << std::endl;
+                                    // std::cout << "j: " << j << " | j_*Cob: " << j_*Cob << std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    }
+    break;
+
+    default:
+        std::cerr << "Please insert a valid order for memory blocking convolution";
+        std::cerr << "Order number: " << orderNumber << " is not valid\n";
+        break;
+    }
+
+
+    if constexpr (DO_TIME){
+        c.stop();
+        // std::cout << c.getTime() << std::endl;
+        if(executionTime != nullptr) {
+            *executionTime = c.getTime();
+        }
+    }
+
+    return *output;
+}
 
 
 

@@ -77,6 +77,9 @@ public:
     // Memory-blocking convolution
     Tensor<T>& convolveMemoryBlocking(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding, 
     const int32_t Cib_divider, const int32_t Cob_divider, const int32_t Wob_divider, const uint32_t orderNumber, float* executionTime =nullptr) const;
+    // Memory-blocking Soft convolution
+    Tensor<T>& convolveMemoryBlockingSoft(const Kernel<T>* kernel, const uint32_t stride, const uint32_t padding,
+    const int32_t Cib_divider, const int32_t Cob_divider, const int32_t Wob_divider, const uint32_t orderNumber, float* executionTime =nullptr) const;
 
     
 public:

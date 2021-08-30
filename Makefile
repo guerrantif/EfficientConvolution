@@ -4,7 +4,7 @@ OPT 		= O3
 EXTRA_FLAG	= -no-vec
 CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native # ${EXTRA_FLAG}
 
-TARGETS 	=  benchmark_MemoryBlocking benchmark_NaiveKernelNKernels benchmark_NaiveKernelNChannels
+TARGETS 	=  benchmark_MemoryBlocking benchmark_MemoryBlockingSoft benchmark_NaiveKernelNKernels benchmark_NaiveKernelNChannels
 
 BIN_DIR 	= ./bin
 ASM_DIR 	= ./asm
@@ -41,6 +41,10 @@ dirs:
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(ASM_DIR)
 
+# benchmark_MemoryBlockingSoft
+$(BIN_DIR)/benchmark_MemoryBlockingSoft: $(OBJECTS) $(BUILD_DIR)/benchmark_MemoryBlockingSoft.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	@echo ${GREEN} "$(BIN_DIR)/benchmark_MemoryBlockingSoft built successfully." ${RESET_COLOR}
 
 # benchmark_NaiveKernelNKernels
 $(BIN_DIR)/benchmark_NaiveKernelNKernels: $(OBJECTS) $(BUILD_DIR)/benchmark_NaiveKernelNKernels.o
