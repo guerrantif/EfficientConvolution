@@ -2,7 +2,7 @@ CXX 		= icpx
 STD 		= c++17
 OPT 		= O3
 EXTRA_FLAG	= -no-vec
-CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native # ${EXTRA_FLAG}
+CXXFLAGS	= --std=$(STD) $(INCLUDES) -${OPT} -msse4 -march=native
 
 TARGETS 	=  benchmark_MemoryBlocking benchmark_MemoryBlockingSoft benchmark_NaiveKernelNKernels benchmark_NaiveKernelNChannels
 
